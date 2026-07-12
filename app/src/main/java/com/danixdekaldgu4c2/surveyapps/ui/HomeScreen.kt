@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -28,15 +31,16 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun HomeScreen(onNavigate: (String) -> Unit) {
     val bg = Color(0xFF2C3036)
-    val card = Color(0xFF22262B)
-    val tile = Color(0xFF1E2227)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(bg)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
+        Spacer(Modifier.height(12.dp))
+
         Text(
             text = "Survey Dashboard",
             color = Color.White,
@@ -45,39 +49,29 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
         )
 
         Text(
-            text = "Select a module",
+            text = "Select a module to get started",
             color = Color.Gray,
             fontSize = 14.sp
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(24.dp))
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = card),
-            shape = RoundedCornerShape(24.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Quick Access",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+        Text(
+            text = "Quick Access",
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold
+        )
 
-                Text(
-                    text = "Tap a module below to start calculations",
-                    color = Color.Gray
-                )
-            }
-        }
+        Spacer(Modifier.height(8.dp))
 
-        Spacer(Modifier.height(20.dp))
+        Text(
+            text = "Tap a module below to start calculations. Each tool is designed to be simple and easy to use.",
+            color = Color.Gray,
+            fontSize = 12.sp
+        )
+
+        Spacer(Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -85,14 +79,16 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
         ) {
             DashboardCard(
                 title = "Coordinate",
-                subtitle = "E / N from bearing",
+                description = "Calculate Easting & Northing coordinates\nfrom a starting point using distance and bearing.",
+                icon = "C",
                 modifier = Modifier.weight(1f),
                 onClick = { onNavigate("coordinate") }
             )
 
             DashboardCard(
                 title = "Distance",
-                subtitle = "Between two points",
+                description = "Find the straight-line distance\nbetween two known coordinate points.",
+                icon = "D",
                 modifier = Modifier.weight(1f),
                 onClick = { onNavigate("distance") }
             )
@@ -106,14 +102,16 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
         ) {
             DashboardCard(
                 title = "Bearing",
-                subtitle = "WCB converter",
+                description = "Convert Whole Circle Bearing (WCB)\nto reduced bearing format.",
+                icon = "B",
                 modifier = Modifier.weight(1f),
                 onClick = { onNavigate("bearing") }
             )
 
             DashboardCard(
                 title = "More",
-                subtitle = "Coming soon",
+                description = "Additional features and tools\ncoming soon.",
+                icon = "...",
                 modifier = Modifier.weight(1f),
                 onClick = { }
             )
@@ -124,13 +122,14 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
 @Composable
 private fun DashboardCard(
     title: String,
-    subtitle: String,
+    description: String,
+    icon: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Card(
         modifier = modifier
-            .height(130.dp)
+            .heightIn(min = 180.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E2227))
@@ -143,14 +142,14 @@ private fun DashboardCard(
         ) {
             Box(
                 modifier = Modifier
-                    .width(42.dp)
-                    .height(42.dp)
-                    .background(Color(0xFF343940), RoundedCornerShape(12.dp)),
+                    .size(48.dp)
+                    .background(Color(0xFF343940), RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = title.take(1),
-                    color = Color.White,
+                    text = icon,
+                    color = Color(0xFF64B5F6),
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -159,13 +158,16 @@ private fun DashboardCard(
                 Text(
                     text = title,
                     color = Color.White,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
+                    lineHeight = 22.sp,
                     fontWeight = FontWeight.SemiBold
                 )
+                Spacer(Modifier.height(4.dp))
                 Text(
-                    text = subtitle,
+                    text = description,
                     color = Color.Gray,
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp
                 )
             }
         }
@@ -174,16 +176,8 @@ private fun DashboardCard(
 
 @Preview(showBackground = true)
 @Composable
-fun DashboardCardPreview() {
-    DashboardCard(
-        title = "Preview",
-        subtitle = "Card Subtitle",
-        onClick = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
 fun HomeScreenPreview() {
-    HomeScreen(onNavigate = {})
+    SurveyAppTheme {
+        HomeScreen(onNavigate = {})
+    }
 }

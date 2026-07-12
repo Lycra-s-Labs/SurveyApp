@@ -1,4 +1,4 @@
-package com.danixdekaldgu4c2.surveyapps.ui
+﻿package com.danixdekaldgu4c2.surveyapps.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,6 @@ fun ScreenFrame(
     content: @Composable () -> Unit
 ) {
     val bg = Color(0xFF2C3036)
-    val card = Color(0xFF22262B)
 
     Column(
         modifier = Modifier
@@ -54,7 +53,7 @@ fun ScreenFrame(
         Spacer(Modifier.height(20.dp))
 
         Card(
-            colors = CardDefaults.cardColors(containerColor = card),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF22262B)),
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
                 .fillMaxWidth()
