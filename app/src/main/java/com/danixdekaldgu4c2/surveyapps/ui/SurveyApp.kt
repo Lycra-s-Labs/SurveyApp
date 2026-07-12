@@ -14,18 +14,25 @@ import androidx.compose.ui.tooling.preview.Preview
 fun SurveyApp() {
     var screen by remember { mutableStateOf("home") }
 
-    MaterialTheme(
-        colorScheme = darkColorScheme(
-            background = Color(0xFF2C3036),
-            surface = Color(0xFF22262B)
-        )
-    ) {
+    SurveyAppTheme {
         when (screen) {
             "home" -> HomeScreen { screen = it }
             "coordinate" -> CoordinateScreen { screen = "home" }
             "distance" -> DistanceScreen { screen = "home" }
             "bearing" -> BearingScreen { screen = "home" }
         }
+    }
+}
+
+@Composable
+fun SurveyAppTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = darkColorScheme(
+            background = Color(0xFF2C3036),
+            surface = Color(0xFF22262B)
+        )
+    ) {
+        content()
     }
 }
 
