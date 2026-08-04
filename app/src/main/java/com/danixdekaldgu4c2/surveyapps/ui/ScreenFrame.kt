@@ -37,6 +37,7 @@ fun ScreenFrame(
             .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.Top
     ) {
+        Spacer(Modifier.height(32.dp))
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             shape = RoundedCornerShape(24.dp),
