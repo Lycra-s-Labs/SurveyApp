@@ -1,26 +1,38 @@
 package com.danixdekaldgu4c2.surveyapps.ui
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun SurveyApp() {
-    var screen by remember { mutableStateOf("home") }
+    val backStack = remember { mutableStateListOf("home") }
+    val currentScreen = backStack.lastOrNull() ?: "home"
 
     SurveyAppTheme {
-        when (screen) {
-            "home" -> HomeScreen { screen = it }
-            "coordinate" -> CoordinateScreen { screen = "home" }
-            "distance" -> DistanceScreen { screen = "home" }
-            "bearing" -> BearingScreen { screen = "home" }
-            "traverse" -> TraverseScreen { screen = "home" }
+        when (currentScreen) {
+            "home" -> HomeScreen { destination ->
+                backStack.add(destination)
+            }
+            "coordinate" -> CoordinateScreen {
+                if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+            }
+            "distance" -> DistanceScreen {
+                if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+            }
+            "bearing" -> BearingScreen {
+                if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+            }
+            "traverse" -> TraverseScreen {
+                if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+            }
         }
     }
 }
@@ -28,22 +40,22 @@ fun SurveyApp() {
 @Composable
 fun SurveyAppTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = darkColorScheme(
-            primary = Color(0xFF64B5F6),
-            onPrimary = Color(0xFF0B1720),
-            secondary = Color(0xFF90CAF9),
-            onSecondary = Color(0xFF0B1720),
-            tertiary = Color(0xFF4DB6AC),
-            onTertiary = Color(0xFF0B1720),
-            background = Color(0xFF1B2128),
-            onBackground = Color(0xFFF4F7FA),
-            surface = Color(0xFF222831),
-            onSurface = Color(0xFFF4F7FA),
-            surfaceVariant = Color(0xFF2D353F),
-            onSurfaceVariant = Color(0xFFC4CEDA),
-            outline = Color(0xFF51606F),
-            outlineVariant = Color(0xFF2F3944),
-            error = Color(0xFFEF5350),
+        colorScheme = lightColorScheme(
+            primary = Color(0xFF2E6BE6),
+            onPrimary = Color.White,
+            secondary = Color(0xFF2BB8A6),
+            onSecondary = Color.White,
+            tertiary = Color(0xFFF2A65A),
+            onTertiary = Color(0xFF1D1D1D),
+            background = Color(0xFFF3F5FA),
+            onBackground = Color(0xFF15171C),
+            surface = Color.White,
+            onSurface = Color(0xFF15171C),
+            surfaceVariant = Color(0xFFE8ECF5),
+            onSurfaceVariant = Color(0xFF5E6573),
+            outline = Color(0xFFC9D1E1),
+            outlineVariant = Color(0xFFE2E7F0),
+            error = Color(0xFFCD3D3D),
             onError = Color.White
         )
     ) {
