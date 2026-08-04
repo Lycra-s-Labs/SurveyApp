@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,7 +32,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun HomeScreen(onNavigate: (String) -> Unit) {
-    val bg = Color(0xFF2C3036)
+    val bg = Color(0xFF1B2128)
 
     Column(
         modifier = Modifier
@@ -39,22 +41,75 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(4.dp))
 
         Text(
-            text = "Survey Dashboard",
+            text = "Survey Toolkit",
             color = Color.White,
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = "Select a module to get started",
-            color = Color.Gray,
+            text = "Civil engineering calculation utilities for field and office use",
+            color = Color(0xFFC4CEDA),
             fontSize = 14.sp
         )
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AssistChip(
+                onClick = { },
+                label = { Text("Meters") },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = Color(0xFF2D353F),
+                    labelColor = Color(0xFF90CAF9)
+                )
+            )
+            AssistChip(
+                onClick = { },
+                label = { Text("Degrees") },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = Color(0xFF2D353F),
+                    labelColor = Color(0xFF90CAF9)
+                )
+            )
+            AssistChip(
+                onClick = { },
+                label = { Text("Survey") },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = Color(0xFF2D353F),
+                    labelColor = Color(0xFF4DB6AC)
+                )
+            )
+        }
+
+        Spacer(Modifier.height(18.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF222831))
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(
+                    text = "Field-ready modules",
+                    color = Color(0xFF64B5F6),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = "Choose a calculation tool. Each screen keeps formulas, units, and results easy to read.",
+                    color = Color(0xFFC4CEDA),
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp
+                )
+            }
+        }
+
+        Spacer(Modifier.height(18.dp))
 
         Text(
             text = "Quick Access",
@@ -63,15 +118,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             fontWeight = FontWeight.SemiBold
         )
 
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            text = "Tap a module below to start calculations. Each tool is designed to be simple and easy to use.",
-            color = Color.Gray,
-            fontSize = 12.sp
-        )
-
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(10.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -79,16 +126,18 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
         ) {
             DashboardCard(
                 title = "Coordinate",
-                description = "Calculate Easting & Northing coordinates\nfrom a starting point using distance and bearing.",
-                icon = "C",
+                description = "Compute E/N from distance and bearing.",
+                icon = "⌖",
+                accent = Color(0xFF64B5F6),
                 modifier = Modifier.weight(1f),
                 onClick = { onNavigate("coordinate") }
             )
 
             DashboardCard(
                 title = "Distance",
-                description = "Find the straight-line distance\nbetween two known coordinate points.",
-                icon = "D",
+                description = "Measure straight-line distance between coordinates.",
+                icon = "⇄",
+                accent = Color(0xFF4DB6AC),
                 modifier = Modifier.weight(1f),
                 onClick = { onNavigate("distance") }
             )
@@ -102,18 +151,20 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
         ) {
             DashboardCard(
                 title = "Bearing",
-                description = "Convert Whole Circle Bearing (WCB)\nto reduced bearing format.",
-                icon = "B",
+                description = "Convert WCB, QB, and internal angle values.",
+                icon = "◎",
+                accent = Color(0xFF90CAF9),
                 modifier = Modifier.weight(1f),
                 onClick = { onNavigate("bearing") }
             )
 
             DashboardCard(
-                title = "More",
-                description = "Additional features and tools\ncoming soon.",
-                icon = "...",
+                title = "Traverse",
+                description = "Latitude, departure, misclose, and adjustment.",
+                icon = "▣",
+                accent = Color(0xFFFFCC80),
                 modifier = Modifier.weight(1f),
-                onClick = { }
+                onClick = { onNavigate("traverse") }
             )
         }
     }
@@ -124,15 +175,16 @@ private fun DashboardCard(
     title: String,
     description: String,
     icon: String,
+    accent: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Card(
         modifier = modifier
-            .heightIn(min = 180.dp)
+            .heightIn(min = 170.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E2227))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF222831))
     ) {
         Column(
             modifier = Modifier
@@ -143,16 +195,18 @@ private fun DashboardCard(
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(Color(0xFF343940), RoundedCornerShape(14.dp)),
+                    .background(Color(0xFF2D353F), RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = icon,
-                    color = Color(0xFF64B5F6),
+                    color = accent,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
+
+            Spacer(Modifier.height(12.dp))
 
             Column {
                 Text(
@@ -165,7 +219,7 @@ private fun DashboardCard(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = description,
-                    color = Color.Gray,
+                    color = Color(0xFFC4CEDA),
                     fontSize = 12.sp,
                     lineHeight = 16.sp
                 )
