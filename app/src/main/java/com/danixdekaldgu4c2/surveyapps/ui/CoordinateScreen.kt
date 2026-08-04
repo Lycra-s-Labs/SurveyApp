@@ -22,8 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.cos
-import kotlin.math.sin
 import androidx.compose.ui.tooling.preview.Preview
 
 
@@ -37,8 +35,8 @@ fun CoordinateScreen(onBack: () -> Unit) {
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
     ScreenFrame(
-        title = "Coordinate Calculator",
-        subtitle = "Calculate new coordinates from distance and bearing",
+        title = "Coordinate Computation",
+        subtitle = "Compute latitude/departure and the new Easting/Northing from distance and WCB",
         onBack = onBack
     ) {
         Column(
@@ -63,41 +61,41 @@ fun CoordinateScreen(onBack: () -> Unit) {
                     OutlinedTextField(
                         value = d,
                         onValueChange = { d = it; errorMsg = null; result = "" },
-                        label = { Text("Distance") },
+                        label = { Text("Distance (m)") },
                         placeholder = { Text("e.g. 100.00") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        supportingText = { Text("Distance from point 1 to point 2", color = Color.Gray) }
+                        supportingText = { Text("Distance used in latitude = D × cos θ and departure = D × sin θ", color = Color.Gray) }
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = theta,
                         onValueChange = { theta = it; errorMsg = null; result = "" },
-                        label = { Text("Bearing (degrees)") },
+                        label = { Text("Bearing (° WCB)") },
                         placeholder = { Text("e.g. 45") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        supportingText = { Text("Angle from north (0\u00B0 to 360\u00B0)", color = Color.Gray) }
+                        supportingText = { Text("Measured clockwise from north", color = Color.Gray) }
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = e1,
                         onValueChange = { e1 = it; errorMsg = null; result = "" },
-                        label = { Text("Starting Easting (E1)") },
+                        label = { Text("Starting Easting (E1, m)") },
                         placeholder = { Text("e.g. 500000.00") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        supportingText = { Text("X coordinate of the starting point", color = Color.Gray) }
+                        supportingText = { Text("Reference X coordinate", color = Color.Gray) }
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = n1,
                         onValueChange = { n1 = it; errorMsg = null; result = "" },
-                        label = { Text("Starting Northing (N1)") },
+                        label = { Text("Starting Northing (N1, m)") },
                         placeholder = { Text("e.g. 300000.00") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        supportingText = { Text("Y coordinate of the starting point", color = Color.Gray) }
+                        supportingText = { Text("Reference Y coordinate", color = Color.Gray) }
                     )
                 }
             }
@@ -118,7 +116,7 @@ fun CoordinateScreen(onBack: () -> Unit) {
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "\u0394E = Distance \u00D7 sin(Bearing)\n\u0394N = Distance \u00D7 cos(Bearing)\nE2 = E1 + \u0394E\nN2 = N1 + \u0394N",
+                        text = "ΔN = Distance × cos(Bearing)\nΔE = Distance × sin(Bearing)\nE2 = E1 + ΔE\nN2 = N1 + ΔN",
                         color = Color.Gray,
                         fontSize = 12.sp
                     )
@@ -140,17 +138,14 @@ fun CoordinateScreen(onBack: () -> Unit) {
                     }
                     errorMsg = null
 
-                    val ang = Math.toRadians(angDeg)
-                    val dN = dist * cos(ang)
-                    val dE = dist * sin(ang)
+                    val solution = coordinateFromStart(
+                        startEasting = eStart,
+                        startNorthing = nStart,
+                        distance = dist,
+                        bearingDeg = angDeg
+                    )
 
-                    val e2 = eStart + dE
-                    val n2 = nStart + dN
-
-                    result = """\u0394E: ${"%.3f".format(dE)} units
-\u0394N: ${"%.3f".format(dN)} units
-E2: ${"%.3f".format(e2)}
-N2: ${"%.3f".format(n2)}"""
+                    result = "ΔE: ${formatValue(solution.latitudeDeparture.departure)} m\nΔN: ${formatValue(solution.latitudeDeparture.latitude)} m\nE2: ${formatValue(solution.easting)} m\nN2: ${formatValue(solution.northing)} m"
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -182,7 +177,7 @@ N2: ${"%.3f".format(n2)}"""
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = result.ifBlank { "Calculated coordinate values will appear here." },
+                        text = result.ifBlank { "Calculated latitude, departure, and coordinate values will appear here." },
                         color = if (result.isBlank()) Color.Gray else Color.White,
                         fontSize = 14.sp
                     )

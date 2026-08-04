@@ -37,8 +37,8 @@ fun DistanceScreen(onBack: () -> Unit) {
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
     ScreenFrame(
-        title = "Distance Calculator",
-        subtitle = "Calculate distance between two coordinate points",
+        title = "Distance Computation",
+        subtitle = "Use the Pythagoras theorem to compute the straight-line distance between two coordinates",
         onBack = onBack
     ) {
         Column(
@@ -136,7 +136,7 @@ fun DistanceScreen(onBack: () -> Unit) {
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "Distance = \u221A[(E2 \u2212 E1)\u00B2 + (N2 \u2212 N1)\u00B2]",
+                        text = "Distance = √[(E2 − E1)² + (N2 − N1)²]",
                         color = Color.Gray,
                         fontSize = 12.sp
                     )
@@ -158,10 +158,10 @@ fun DistanceScreen(onBack: () -> Unit) {
                     }
                     errorMsg = null
 
-                    val d = sqrt(
-                        (endE - startE).pow(2) + (endN - startN).pow(2)
-                    )
-                    result = "Distance: ${"%.3f".format(d)} units"
+                    val d = distanceBetweenCoordinates(startE, startN, endE, endN)
+                    val deltaE = endE - startE
+                    val deltaN = endN - startN
+                    result = "ΔE: ${formatValue(deltaE)} m\nΔN: ${formatValue(deltaN)} m\nDistance: ${formatValue(d)} m"
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -193,7 +193,7 @@ fun DistanceScreen(onBack: () -> Unit) {
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = result.ifBlank { "The calculated distance will appear here." },
+                        text = result.ifBlank { "The coordinate deltas and calculated distance will appear here." },
                         color = if (result.isBlank()) Color.Gray else Color.White,
                         fontSize = 14.sp
                     )
