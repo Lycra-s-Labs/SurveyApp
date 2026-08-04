@@ -34,7 +34,7 @@ fun ScreenFrame(
         modifier = Modifier
             .fillMaxSize()
             .background(bg)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.Top
     ) {
         Card(
@@ -46,7 +46,7 @@ fun ScreenFrame(
                 Text(
                     text = title,
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 24.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
 

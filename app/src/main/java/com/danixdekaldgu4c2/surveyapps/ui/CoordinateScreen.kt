@@ -56,7 +56,7 @@ fun CoordinateScreen(onBack: () -> Unit) {
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(32.dp))
 
                     OutlinedTextField(
                         value = d,

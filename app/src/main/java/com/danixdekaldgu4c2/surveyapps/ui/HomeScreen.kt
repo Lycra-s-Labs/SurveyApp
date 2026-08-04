@@ -39,9 +39,9 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             .fillMaxSize()
             .background(bg)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(32.dp))
 
         Text(
             text = "Survey Toolkit",
