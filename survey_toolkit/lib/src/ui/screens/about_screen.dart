@@ -27,13 +27,20 @@ class AboutScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [AppTheme.accentPurple, AppTheme.accentBlue],
+                              colors: [
+                                AppTheme.accentPurple,
+                                AppTheme.accentBlue,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Icon(Icons.info, color: Colors.white, size: 26),
+                          child: const Icon(
+                            Icons.info,
+                            color: Colors.white,
+                            size: 26,
+                          ),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -70,15 +77,25 @@ class AboutScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  _buildAppInfoCard().animate().fadeIn(duration: 400.ms).slideY(begin: 0.2),
+                  _buildAppInfoCard()
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .slideY(begin: 0.2),
                   const SizedBox(height: 20),
-                  _buildFeatureList().animate().fadeIn(duration: 400.ms, delay: 100.ms).slideY(begin: 0.2),
+                  _buildTechStack()
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: 200.ms)
+                      .slideY(begin: 0.2),
                   const SizedBox(height: 20),
-                  _buildTechStack().animate().fadeIn(duration: 400.ms, delay: 200.ms).slideY(begin: 0.2),
+                  _buildCredits()
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: 300.ms)
+                      .slideY(begin: 0.2),
                   const SizedBox(height: 20),
-                  _buildCredits().animate().fadeIn(duration: 400.ms, delay: 300.ms).slideY(begin: 0.2),
-                  const SizedBox(height: 20),
-                  _buildLegal().animate().fadeIn(duration: 400.ms, delay: 400.ms).slideY(begin: 0.2),
+                  _buildLegal()
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: 400.ms)
+                      .slideY(begin: 0.2),
                 ]),
               ),
             ),
@@ -192,16 +209,59 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
+  // Retained as a reference for the feature descriptions; the About layout no
+  // longer renders this section.
+  // ignore: unused_element
   Widget _buildFeatureList() {
     final features = [
-      ('Traverse & Adjustment', 'Lat/Dep, misclose, Bowditch & Transit corrections', Icons.navigation, AppTheme.accentAmber),
-      ('Coordinate Geometry', 'Forward/inverse computation, 2 missing lines', Icons.place, AppTheme.accentBlue),
-      ('Bearing Operations', 'WCB ↔ Quadrant, internal angles, bearing from known', Icons.explore, AppTheme.accentTeal),
-      ('Area & Centroid', 'Polygon area by coordinates, center point', Icons.crop_square, AppTheme.accentPurple),
-      ('Intersection/Resection', 'Bearing-bearing intersection, 3-point resection', Icons.adjust, AppTheme.accentPurple),
-      ('Curve Offsets', 'Secants equal/non-equal width for circular curves', Icons.swap_horiz, AppTheme.accentBlue),
-      ('Leveling Survey', 'HI method, elevation computation', Icons.height, AppTheme.successColor),
-      ('Circle Geometry', 'Center and radius from 3 points', Icons.circle, AppTheme.accentTeal),
+      (
+        'Traverse & Adjustment',
+        'Lat/Dep, misclose, Bowditch & Transit corrections',
+        Icons.navigation,
+        AppTheme.accentAmber,
+      ),
+      (
+        'Coordinate Geometry',
+        'Forward/inverse computation, 2 missing lines',
+        Icons.place,
+        AppTheme.accentBlue,
+      ),
+      (
+        'Bearing Operations',
+        'WCB ↔ Quadrant, internal angles, bearing from known',
+        Icons.explore,
+        AppTheme.accentTeal,
+      ),
+      (
+        'Area & Centroid',
+        'Polygon area by coordinates, center point',
+        Icons.crop_square,
+        AppTheme.accentPurple,
+      ),
+      (
+        'Intersection/Resection',
+        'Bearing-bearing intersection, 3-point resection',
+        Icons.adjust,
+        AppTheme.accentPurple,
+      ),
+      (
+        'Curve Offsets',
+        'Secants equal/non-equal width for circular curves',
+        Icons.swap_horiz,
+        AppTheme.accentBlue,
+      ),
+      (
+        'Leveling Survey',
+        'HI method, elevation computation',
+        Icons.height,
+        AppTheme.successColor,
+      ),
+      (
+        'Circle Geometry',
+        'Center and radius from 3 points',
+        Icons.circle,
+        AppTheme.accentTeal,
+      ),
     ];
 
     return Column(
@@ -224,52 +284,59 @@ class AboutScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final (title, desc, icon, color) = features[index];
             return GlassCard(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(icon, color: color, size: 20),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            color: AppTheme.textPrimary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          desc,
-                          style: const TextStyle(
-                            color: AppTheme.textMuted,
-                            fontSize: 12,
-                          ),
+                        child: Icon(icon, color: color, size: 20),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              desc,
+                              style: const TextStyle(
+                                color: AppTheme.textMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.successColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          LucideIcons.check,
+                          color: AppTheme.successColor,
+                          size: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.successColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(LucideIcons.check, color: AppTheme.successColor, size: 14),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(duration: 300.ms, delay: (50 * index).ms).slideX(begin: 0.1);
+                )
+                .animate()
+                .fadeIn(duration: 300.ms, delay: (50 * index).ms)
+                .slideX(begin: 0.1);
           },
         ),
       ],
@@ -293,12 +360,42 @@ class AboutScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              _TechItem('Flutter 3.x', 'Cross-platform UI framework', Icons.smartphone, AppTheme.accentBlue),
-              _TechItem('Dart', 'Type-safe programming language', Icons.code, AppTheme.accentTeal),
-              _TechItem('Material 3', 'Modern design system', Icons.palette, AppTheme.accentPurple),
-              _TechItem('Material Icons', 'Built-in Flutter icon set', Icons.image, AppTheme.accentAmber),
-              _TechItem('Google Fonts (Inter)', 'Clean, readable typography', Icons.font_download, AppTheme.successColor),
-              _TechItem('Flutter Animate', 'Declarative animations', Icons.flash_on, AppTheme.warningColor),
+              _TechItem(
+                'Flutter 3.x',
+                'Cross-platform UI framework',
+                Icons.smartphone,
+                AppTheme.accentBlue,
+              ),
+              _TechItem(
+                'Dart',
+                'Type-safe programming language',
+                Icons.code,
+                AppTheme.accentTeal,
+              ),
+              _TechItem(
+                'Material 3',
+                'Modern design system',
+                Icons.palette,
+                AppTheme.accentPurple,
+              ),
+              _TechItem(
+                'Material Icons',
+                'Built-in Flutter icon set',
+                Icons.image,
+                AppTheme.accentAmber,
+              ),
+              _TechItem(
+                'Google Fonts (Inter)',
+                'Clean, readable typography',
+                Icons.font_download,
+                AppTheme.successColor,
+              ),
+              _TechItem(
+                'Flutter Animate',
+                'Declarative animations',
+                Icons.flash_on,
+                AppTheme.warningColor,
+              ),
             ],
           ),
         ),
@@ -427,8 +524,21 @@ class _TechItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
-                Text(subtitle, style: const TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppTheme.textMuted,
+                    fontSize: 11,
+                  ),
+                ),
               ],
             ),
           ),
@@ -459,14 +569,32 @@ class _CreditItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
-                Text(description, style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, height: 1.4)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    color: AppTheme.textMuted,
+                    fontSize: 11,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
           if (url != null)
             IconButton(
-              icon: Icon(Icons.open_in_new, color: AppTheme.textMuted, size: 16),
+              icon: Icon(
+                Icons.open_in_new,
+                color: AppTheme.textMuted,
+                size: 16,
+              ),
               onPressed: () {},
               tooltip: 'Open link',
             ),
@@ -496,8 +624,22 @@ class _LegalItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
-                Text(description, style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, height: 1.4)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    color: AppTheme.textMuted,
+                    fontSize: 11,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
