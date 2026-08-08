@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../navigation/glass_pill_navigation.dart';
-import '../../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'tools_screen.dart';
 import 'guides_screen.dart';
 import 'about_screen.dart';
+import 'settings_screen.dart';
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+  final Color seedColor;
+  final ValueChanged<Color> onSeedColorChanged;
+  final bool pureBlack;
+  final ValueChanged<bool> onPureBlackChanged;
+
+  const MainShell({
+    super.key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+    required this.seedColor,
+    required this.onSeedColorChanged,
+    required this.pureBlack,
+    required this.onPureBlackChanged,
+  });
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -18,11 +33,19 @@ class _MainShellState extends State<MainShell> {
   AppTab _currentTab = AppTab.home;
   late final PageController _pageController;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    ToolsScreen(),
-    GuidesScreen(),
-    AboutScreen(),
+  List<Widget> get _screens => [
+    const HomeScreen(),
+    const ToolsScreen(),
+    const GuidesScreen(),
+    SettingsScreen(
+      themeMode: widget.themeMode,
+      onThemeModeChanged: widget.onThemeModeChanged,
+      seedColor: widget.seedColor,
+      onSeedColorChanged: widget.onSeedColorChanged,
+      pureBlack: widget.pureBlack,
+      onPureBlackChanged: widget.onPureBlackChanged,
+    ),
+    const AboutScreen(),
   ];
 
   @override
@@ -49,7 +72,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryDark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBody: true,
       body: Stack(
         children: [

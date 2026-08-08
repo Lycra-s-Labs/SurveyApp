@@ -192,13 +192,20 @@ class GuidesScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [AppTheme.accentTeal, AppTheme.accentBlue],
+                              colors: [
+                                AppTheme.accentTeal,
+                                AppTheme.accentBlue,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Icon(Icons.menu_book, color: Colors.white, size: 26),
+                          child: const Icon(
+                            Icons.menu_book,
+                            color: Colors.white,
+                            size: 26,
+                          ),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -208,7 +215,9 @@ class GuidesScreen extends StatelessWidget {
                               Text(
                                 'Guides & Tutorials',
                                 style: TextStyle(
-                                  color: AppTheme.textPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.5,
@@ -217,7 +226,9 @@ class GuidesScreen extends StatelessWidget {
                               Text(
                                 'Learn each tool with step-by-step guides',
                                 style: TextStyle(
-                                  color: AppTheme.textMuted,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -234,16 +245,13 @@ class GuidesScreen extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final category = guides[index];
-                    return _GuideCategoryWidget(category: category).animate().fadeIn(
-                      duration: 400.ms,
-                      delay: (80 * index).ms,
-                    ).slideY(begin: 0.2);
-                  },
-                  childCount: guides.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final category = guides[index];
+                  return _GuideCategoryWidget(category: category)
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: (80 * index).ms)
+                      .slideY(begin: 0.2);
+                }, childCount: guides.length),
               ),
             ),
           ],
@@ -316,7 +324,9 @@ class _GuideCategoryWidget extends StatelessWidget {
             final i = entry.key;
             final item = entry.value;
             return Padding(
-              padding: EdgeInsets.only(bottom: i == category.items.length - 1 ? 0 : 8),
+              padding: EdgeInsets.only(
+                bottom: i == category.items.length - 1 ? 0 : 8,
+              ),
               child: _GuideCard(item: item, accentColor: category.color),
             );
           }).toList(),
@@ -371,19 +381,24 @@ class _GuideCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.title,
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: levelColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: levelColor.withValues(alpha: 0.4)),
+                        border: Border.all(
+                          color: levelColor.withValues(alpha: 0.4),
+                        ),
                       ),
                       child: Text(
                         item.level.toUpperCase(),
@@ -400,8 +415,8 @@ class _GuideCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   item.description,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
                     height: 1.4,
                   ),
@@ -411,7 +426,11 @@ class _GuideCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(LucideIcons.chevronRight, color: AppTheme.textMuted, size: 20),
+          Icon(
+            LucideIcons.chevronRight,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            size: 20,
+          ),
         ],
       ),
     );
@@ -422,7 +441,8 @@ class _GuideCard extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => _GuideDetailSheet(item: item, accentColor: accentColor),
+      builder: (context) =>
+          _GuideDetailSheet(item: item, accentColor: accentColor),
     );
   }
 }
@@ -437,8 +457,8 @@ class _GuideDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
-      decoration: const BoxDecoration(
-        color: AppTheme.surfaceDark,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -475,17 +495,22 @@ class _GuideDetailSheet extends StatelessWidget {
                           children: [
                             Text(
                               item.title,
-                              style: const TextStyle(
-                                color: AppTheme.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
                             Container(
                               margin: const EdgeInsets.only(top: 6),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
-                                color: _levelColor(item.level).withValues(alpha: 0.15),
+                                color: _levelColor(
+                                  item.level,
+                                ).withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -506,8 +531,8 @@ class _GuideDetailSheet extends StatelessWidget {
                   GlassCard(
                     child: Text(
                       _getGuideContent(item.title),
-                      style: const TextStyle(
-                        color: AppTheme.textSecondary,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 14,
                         height: 1.7,
                       ),
@@ -707,6 +732,7 @@ class _GuideDetailSheet extends StatelessWidget {
           '3. Loop Closure: Distribute error proportionally to distance or setups.',
     };
 
-    return guides[title] ?? 'Guide content coming soon. This tool helps with ${item.description.toLowerCase()}.';
+    return guides[title] ??
+        'Guide content coming soon. This tool helps with ${item.description.toLowerCase()}.';
   }
 }
