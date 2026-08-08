@@ -41,7 +41,7 @@ class _MainShellState extends State<MainShell> {
     setState(() => _currentTab = tab);
     _pageController.animateToPage(
       AppTab.values.indexOf(tab),
-      duration: 300.ms,
+      duration: 700.ms,
       curve: Curves.easeOutCubic,
     );
   }
