@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_theme.dart';
 
-enum AppTab { home, tools, guides, about }
+enum AppTab { home, tools, guides, settings, about }
 
 class GlassPillNavigation extends StatelessWidget {
   final AppTab currentTab;
@@ -16,17 +15,30 @@ class GlassPillNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final tabs = [
       _TabItem(tab: AppTab.home, icon: Icons.dashboard, label: 'Dashboard'),
       _TabItem(tab: AppTab.tools, icon: Icons.build, label: 'Tools'),
       _TabItem(tab: AppTab.guides, icon: Icons.menu_book, label: 'Guides'),
+      _TabItem(tab: AppTab.settings, icon: Icons.settings, label: 'Settings'),
       _TabItem(tab: AppTab.about, icon: Icons.info, label: 'About'),
     ];
 
     return Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          decoration: AppTheme.glassPill(radius: 32),
+          decoration: BoxDecoration(
+            color: scheme.surface.withValues(alpha: 0.92),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: scheme.outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.22),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: tabs.asMap().entries.map((entry) {
@@ -52,7 +64,14 @@ class GlassPillNavigation extends StatelessWidget {
                           vertical: 8,
                         ),
                         decoration: isSelected
-                            ? AppTheme.glassPillSelected(radius: 26)
+                            ? BoxDecoration(
+                                color: scheme.primary.withValues(alpha: 0.22),
+                                borderRadius: BorderRadius.circular(26),
+                                border: Border.all(
+                                  color: scheme.primary.withValues(alpha: 0.65),
+                                  width: 1.5,
+                                ),
+                              )
                             : null,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -62,8 +81,8 @@ class GlassPillNavigation extends StatelessWidget {
                               item.icon,
                               size: 20,
                               color: isSelected
-                                  ? AppTheme.accentBlue
-                                  : AppTheme.textMuted,
+                                  ? scheme.primary
+                                  : scheme.onSurfaceVariant,
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -73,8 +92,8 @@ class GlassPillNavigation extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: isSelected
-                                    ? AppTheme.accentBlue
-                                    : AppTheme.textMuted,
+                                    ? scheme.primary
+                                    : scheme.onSurfaceVariant,
                                 fontWeight: isSelected
                                     ? FontWeight.w700
                                     : FontWeight.w500,

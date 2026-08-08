@@ -50,7 +50,9 @@ class AboutScreen extends StatelessWidget {
                               Text(
                                 'About',
                                 style: TextStyle(
-                                  color: AppTheme.textPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.5,
@@ -59,7 +61,9 @@ class AboutScreen extends StatelessWidget {
                               Text(
                                 'Survey Toolkit v1.0.0',
                                 style: TextStyle(
-                                  color: AppTheme.textMuted,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -77,22 +81,21 @@ class AboutScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  _buildAppInfoCard()
-                      .animate()
-                      .fadeIn(duration: 400.ms)
-                      .slideY(begin: 0.2),
+                  _buildAppInfoCard(
+                    context,
+                  ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2),
                   const SizedBox(height: 20),
-                  _buildTechStack()
+                  _buildTechStack(context)
                       .animate()
                       .fadeIn(duration: 400.ms, delay: 200.ms)
                       .slideY(begin: 0.2),
                   const SizedBox(height: 20),
-                  _buildCredits()
+                  _buildCredits(context)
                       .animate()
                       .fadeIn(duration: 400.ms, delay: 300.ms)
                       .slideY(begin: 0.2),
                   const SizedBox(height: 20),
-                  _buildLegal()
+                  _buildLegal(context)
                       .animate()
                       .fadeIn(duration: 400.ms, delay: 400.ms)
                       .slideY(begin: 0.2),
@@ -105,7 +108,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppInfoCard() {
+  Widget _buildAppInfoCard(BuildContext context) {
     return GlassCard(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -133,8 +136,8 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             'Survey Toolkit',
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
@@ -155,8 +158,8 @@ class AboutScreen extends StatelessWidget {
             'and field professionals. Built to handle traverse computations, coordinate geometry, '
             'bearing conversions, intersection/resection, area calculations, and leveling — '
             'all with a modern, field-ready interface.',
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 14,
               height: 1.6,
             ),
@@ -166,11 +169,11 @@ class AboutScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildStatChip('15+', 'Tools'),
+              _buildStatChip(context, '15+', 'Tools'),
               const SizedBox(width: 12),
-              _buildStatChip('11', 'Categories'),
+              _buildStatChip(context, '11', 'Categories'),
               const SizedBox(width: 12),
-              _buildStatChip('Offline', 'Ready'),
+              _buildStatChip(context, 'Offline', 'Ready'),
             ],
           ),
         ],
@@ -178,28 +181,28 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatChip(String value, String label) {
+  Widget _buildStatChip(BuildContext context, String value, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.glassBorder),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
           Text(
             value,
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
           Text(
             label,
-            style: const TextStyle(
-              color: AppTheme.textMuted,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 11,
               fontWeight: FontWeight.w500,
             ),
@@ -302,8 +305,8 @@ class AboutScreen extends StatelessWidget {
                           children: [
                             Text(
                               title,
-                              style: const TextStyle(
-                                color: AppTheme.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -311,8 +314,10 @@ class AboutScreen extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               desc,
-                              style: const TextStyle(
-                                color: AppTheme.textMuted,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
                               ),
                             ),
@@ -343,7 +348,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTechStack() {
+  Widget _buildTechStack(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -403,7 +408,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCredits() {
+  Widget _buildCredits(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -451,7 +456,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLegal() {
+  Widget _buildLegal(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -526,16 +531,16 @@ class _TechItem extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: AppTheme.textMuted,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 11,
                   ),
                 ),
@@ -571,16 +576,16 @@ class _CreditItem extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   description,
-                  style: const TextStyle(
-                    color: AppTheme.textMuted,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 11,
                     height: 1.4,
                   ),
@@ -592,7 +597,7 @@ class _CreditItem extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.open_in_new,
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 16,
               ),
               onPressed: () {},
@@ -618,7 +623,11 @@ class _LegalItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppTheme.textMuted, size: 18),
+          Icon(
+            icon,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            size: 18,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -626,16 +635,16 @@ class _LegalItem extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   description,
-                  style: const TextStyle(
-                    color: AppTheme.textMuted,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 11,
                     height: 1.4,
                   ),

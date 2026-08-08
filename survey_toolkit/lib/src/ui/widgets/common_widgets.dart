@@ -74,13 +74,17 @@ class GlassInputField extends StatelessWidget {
       maxLines: maxLines,
       validator: validator,
       onChanged: onChanged,
-      style: const TextStyle(color: AppTheme.textPrimary),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         helperText: helperText,
         prefixIcon: prefixIcon != null
-            ? Icon(prefixIcon, color: AppTheme.textMuted, size: 20)
+            ? Icon(
+                prefixIcon,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20,
+              )
             : null,
       ),
     );
@@ -128,8 +132,8 @@ class SectionHeader extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle!,
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
               height: 1.4,
             ),
@@ -186,8 +190,8 @@ class ResultCard extends StatelessWidget {
               ],
               Text(
                 title,
-                style: const TextStyle(
-                  color: AppTheme.textMuted,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -202,7 +206,9 @@ class ResultCard extends StatelessWidget {
                 child: Text(
                   value,
                   style: TextStyle(
-                    color: isHighlighted ? color : AppTheme.textPrimary,
+                    color: isHighlighted
+                        ? color
+                        : Theme.of(context).colorScheme.onSurface,
                     fontSize: value.contains('\n') ? 16 : 22,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'monospace',
@@ -215,8 +221,8 @@ class ResultCard extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Text(
                     unit!,
-                    style: const TextStyle(
-                      color: AppTheme.textMuted,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -277,8 +283,8 @@ class ToolCard extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 title,
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                 ),
@@ -286,8 +292,8 @@ class ToolCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 description,
-                style: const TextStyle(
-                  color: AppTheme.textSecondary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 13,
                   height: 1.4,
                 ),
@@ -365,8 +371,8 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
                   title,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
@@ -378,8 +384,8 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
                   message,
-                  style: const TextStyle(
-                    color: AppTheme.textMuted,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 14,
                     height: 1.5,
                   ),
@@ -421,8 +427,8 @@ class LoadingOverlay extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 message!,
-                style: const TextStyle(
-                  color: AppTheme.textSecondary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 14,
                 ),
               ),

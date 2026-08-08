@@ -10,6 +10,27 @@ class ToolsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Text(
+            'New tools are coming soon',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CalculationToolsView extends StatelessWidget {
+  const CalculationToolsView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     final categories = [
       _ToolCategory(
         title: 'Traverse & Coordinates',
@@ -167,7 +188,9 @@ class ToolsScreen extends StatelessWidget {
                               Text(
                                 'Calculation Tools',
                                 style: TextStyle(
-                                  color: AppTheme.textPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.5,
@@ -176,7 +199,9 @@ class ToolsScreen extends StatelessWidget {
                               Text(
                                 '${categories.fold<int>(0, (sum, c) => sum + c.tools.length)} tools available',
                                 style: TextStyle(
-                                  color: AppTheme.textMuted,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),

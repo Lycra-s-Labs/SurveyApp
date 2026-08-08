@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryDark = Color(0xFF000000);
+  static bool _lightMode = false;
+
+  static void configureBrightness(Brightness brightness) {
+    _lightMode = brightness == Brightness.light;
+  }
+
+  static const Color primaryDark = Color(0xFF1B2128);
   static const Color surfaceDark = Color(0xFF222831);
   static const Color surfaceVariant = Color(0xFF2D353F);
   static const Color accentBlue = Color(0xFF64B5F6);
@@ -16,31 +22,56 @@ class AppTheme {
   static const Color successColor = Color(0xFF66BB6A);
   static const Color warningColor = Color(0xFFFFCA28);
 
+  static const List<AppThemePalette> palettes = [
+    AppThemePalette('Default', Color(0xFF64B5F6)),
+    AppThemePalette('Dynamic', Color(0xFF90CAF9)),
+    AppThemePalette('Catppuccin', Color(0xFFCE93D8)),
+    AppThemePalette('Green Apple', Color(0xFF66BB6A)),
+    AppThemePalette('Lavender', Color(0xFFAB82FF)),
+    AppThemePalette('Midnight Dusk', Color(0xFFEC407A)),
+    AppThemePalette('Nord', Color(0xFF88C0D0)),
+    AppThemePalette('Strawberry', Color(0xFFFF8A80)),
+    AppThemePalette('Tako', Color(0xFFFFB74D)),
+    AppThemePalette('Tidal Wave', Color(0xFF29B6F6)),
+    AppThemePalette('Yin & Yang', Color(0xFF607D8B)),
+    AppThemePalette('Yotsuba', Color(0xFFFFAB91)),
+    AppThemePalette('Monochrome', Color(0xFF111111)),
+  ];
+
   static const Color glassWhite = Color(0x1AFFFFFF);
   static const Color glassWhiteStrong = Color(0x2FFFFFFF);
   static const Color glassBorder = Color(0x33FFFFFF);
 
   static ThemeData get darkTheme {
+    return darkThemeFor();
+  }
+
+  static ThemeData darkThemeFor({
+    Color seedColor = accentBlue,
+    bool pureBlack = false,
+  }) {
     final base = ThemeData.dark();
+    final monochrome =
+        seedColor.toARGB32() == const Color(0xFF111111).toARGB32();
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: seedColor,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: monochrome ? Colors.white : null,
+          secondary: monochrome ? Colors.white : null,
+          tertiary: monochrome ? Colors.grey : null,
+          onPrimary: monochrome ? Colors.black : null,
+        );
     return base.copyWith(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: primaryDark,
-      colorScheme: const ColorScheme.dark(
-        primary: accentBlue,
-        secondary: accentTeal,
-        tertiary: accentAmber,
-        surface: surfaceDark,
-        surfaceContainerHighest: surfaceVariant,
-        error: errorColor,
-        onPrimary: Colors.black,
-        onSecondary: Colors.black,
-        onSurface: textPrimary,
-        onError: Colors.white,
+      scaffoldBackgroundColor: pureBlack ? Colors.black : primaryDark,
+      colorScheme: scheme.copyWith(
+        surface: pureBlack ? Colors.black : surfaceDark,
       ),
-      textTheme: GoogleFonts.interTextTheme(base.textTheme).apply(
-        bodyColor: textPrimary,
-        displayColor: textPrimary,
-      ),
+      textTheme: GoogleFonts.interTextTheme(
+        base.textTheme,
+      ).apply(bodyColor: textPrimary, displayColor: textPrimary),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -67,8 +98,13 @@ class AppTheme {
           foregroundColor: Colors.black,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -76,8 +112,13 @@ class AppTheme {
           foregroundColor: accentBlue,
           side: const BorderSide(color: accentBlue, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -99,7 +140,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: errorColor, width: 1),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         labelStyle: GoogleFonts.inter(color: textMuted),
         hintStyle: GoogleFonts.inter(color: textMuted),
       ),
@@ -118,19 +162,64 @@ class AppTheme {
     );
   }
 
+  static ThemeData get lightTheme {
+    return lightThemeFor(accentBlue);
+  }
+
+  static ThemeData lightThemeFor(Color seedColor) {
+    final monochrome =
+        seedColor.toARGB32() == const Color(0xFF111111).toARGB32();
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: seedColor,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: monochrome ? Colors.black : null,
+          secondary: monochrome ? Colors.black : null,
+          tertiary: monochrome ? Colors.grey : null,
+          onPrimary: monochrome ? Colors.white : null,
+        );
+    final base = ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: const Color(0xFFF7F9FC),
+    );
+    return base.copyWith(
+      textTheme: GoogleFonts.interTextTheme(base.textTheme),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+      ),
+    );
+  }
+
   static BoxDecoration glassCard({double radius = 20, Color? borderColor}) {
     return BoxDecoration(
-      color: surfaceDark.withValues(alpha: 0.8),
+      color: (_lightMode ? Colors.white : surfaceDark).withValues(alpha: 0.9),
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: borderColor ?? glassBorder, width: 1),
+      border: Border.all(
+        color:
+            borderColor ?? (_lightMode ? const Color(0x26000000) : glassBorder),
+        width: 1,
+      ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.3),
+          color: Colors.black.withValues(alpha: _lightMode ? 0.12 : 0.3),
           blurRadius: 20,
           offset: const Offset(0, 8),
         ),
         BoxShadow(
-          color: Colors.white.withValues(alpha: 0.02),
+          color: Colors.white.withValues(alpha: _lightMode ? 0.5 : 0.02),
           blurRadius: 1,
           offset: const Offset(0, 1),
         ),
@@ -177,6 +266,13 @@ class AppTheme {
       ],
     );
   }
+}
+
+class AppThemePalette {
+  final String name;
+  final Color color;
+
+  const AppThemePalette(this.name, this.color);
 }
 
 extension ColorExtension on Color {
