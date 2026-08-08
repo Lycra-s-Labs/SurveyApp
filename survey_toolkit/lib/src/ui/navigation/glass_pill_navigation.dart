@@ -47,16 +47,16 @@ class GlassPillNavigation extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: 300.ms,
                         curve: Curves.easeOutCubic,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isSelected ? 20 : 14,
-                          vertical: 10,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 8,
                         ),
                         decoration: isSelected
                             ? AppTheme.glassPillSelected(radius: 26)
                             : null,
-                        child: Row(
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               item.icon,
@@ -65,25 +65,22 @@ class GlassPillNavigation extends StatelessWidget {
                                   ? AppTheme.accentBlue
                                   : AppTheme.textMuted,
                             ),
-                            if (isSelected) ...[
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child:
-                                    Text(
-                                          item.label,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: AppTheme.accentBlue,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                        )
-                                        .animate()
-                                        .fadeIn(duration: 200.ms)
-                                        .slideX(begin: -0.2),
+                            const SizedBox(height: 4),
+                            Text(
+                              item.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? AppTheme.accentBlue
+                                    : AppTheme.textMuted,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                fontSize: 11,
                               ),
-                            ],
+                            ),
                           ],
                         ),
                       ),
