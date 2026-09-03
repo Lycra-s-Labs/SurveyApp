@@ -365,6 +365,15 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
     });
   }
 
+  void _removeTraverseLine(int index) {
+    setState(() {
+      _traverseDistances[index].dispose();
+      _traverseBearings[index].dispose();
+      _traverseDistances.removeAt(index);
+      _traverseBearings.removeAt(index);
+    });
+  }
+
   String? _result;
   String? _error;
 
@@ -786,12 +795,29 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
   Widget _buildTraverseInputs() => Column(
     children: [
       for (var i = 0; i < _traverseDistances.length; i++) ...[
-        GlassInputField(
-          controller: _traverseDistances[i],
-          label: 'Line ${i + 1} - Distance (m)',
-          hint: '60.123',
-          keyboardType: TextInputType.number,
-          prefixIcon: Icons.straighten,
+        Row(
+          children: [
+            Expanded(
+              child: GlassInputField(
+                controller: _traverseDistances[i],
+                label: 'Line ${i + 1} - Distance (m)',
+                hint: '60.123',
+                keyboardType: TextInputType.number,
+                prefixIcon: Icons.straighten,
+              ),
+            ),
+            if (_traverseDistances.length > 1 && i > 0) ...[
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => _removeTraverseLine(i),
+                icon: const Icon(Icons.delete_outline, size: 20),
+                style: IconButton.styleFrom(
+                  foregroundColor: Colors.red.withValues(alpha: 0.7),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 12),
         GlassInputField(
