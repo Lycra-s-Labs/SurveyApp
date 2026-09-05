@@ -16,7 +16,7 @@ Survey Toolkit is a Flutter-based calculator application designed for civil engi
 - **Icons**: Lucide Icons
 - **Typography**: Google Fonts (Inter)
 - **Animations**: `flutter_animate`
-- **Target Platforms**: Android, iOS, Web, Windows, macOS, Linux
+- **Target Platforms**: Android
 
 ## Project Structure
 
