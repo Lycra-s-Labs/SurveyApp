@@ -522,13 +522,21 @@ LevelingResult levelingSurvey({
   required double benchmarkElevation,
   required double backsight,
   required double foresight,
+  List<double>? backsights,
+  List<double>? foresights,
 }) {
-  final heightOfInstrument = benchmarkElevation + backsight;
-  final elevation = heightOfInstrument - foresight;
+  final totalBacksight = backsights == null
+      ? backsight
+      : backsights.fold(0.0, (sum, reading) => sum + reading);
+  final totalForesight = foresights == null
+      ? foresight
+      : foresights.fold(0.0, (sum, reading) => sum + reading);
+  final heightOfInstrument = benchmarkElevation + totalBacksight;
+  final elevation = heightOfInstrument - totalForesight;
   return LevelingResult(
     elevation: elevation,
-    backsight: backsight,
-    foresight: foresight,
+    backsight: totalBacksight,
+    foresight: totalForesight,
     heightOfInstrument: heightOfInstrument,
   );
 }

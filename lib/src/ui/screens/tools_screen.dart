@@ -343,6 +343,12 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
   final List<TextEditingController> _traverseBearings = [
     TextEditingController(),
   ];
+  final List<TextEditingController> _levelingBacksights = [
+    TextEditingController(),
+  ];
+  final List<TextEditingController> _levelingForesights = [
+    TextEditingController(),
+  ];
 
   @override
   void dispose() {
@@ -353,6 +359,12 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       controller.dispose();
     }
     for (final controller in _traverseBearings) {
+      controller.dispose();
+    }
+    for (final controller in _levelingBacksights) {
+      controller.dispose();
+    }
+    for (final controller in _levelingForesights) {
       controller.dispose();
     }
     super.dispose();
@@ -371,6 +383,22 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       _traverseBearings[index].dispose();
       _traverseDistances.removeAt(index);
       _traverseBearings.removeAt(index);
+    });
+  }
+
+  void _addLevelingLine() {
+    setState(() {
+      _levelingBacksights.add(TextEditingController());
+      _levelingForesights.add(TextEditingController());
+    });
+  }
+
+  void _removeLevelingLine(int index) {
+    setState(() {
+      _levelingBacksights[index].dispose();
+      _levelingForesights[index].dispose();
+      _levelingBacksights.removeAt(index);
+      _levelingForesights.removeAt(index);
     });
   }
 
@@ -509,10 +537,20 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
         );
         result = 'Area: ${_v(value.totalArea)} m²';
       } else if (title == 'Leveling Survey') {
+        final backsights = _levelingBacksights.map((controller) {
+          return double.tryParse(controller.text.trim()) ??
+              (throw const FormatException('Enter every backsight reading.'));
+        }).toList();
+        final foresights = _levelingForesights.map((controller) {
+          return double.tryParse(controller.text.trim()) ??
+              (throw const FormatException('Enter every foresight reading.'));
+        }).toList();
         final value = levelingSurvey(
           benchmarkElevation: _number('benchmark'),
-          backsight: _number('backsight'),
-          foresight: _number('foresight'),
+          backsight: backsights.first,
+          foresight: foresights.last,
+          backsights: backsights,
+          foresights: foresights,
         );
         result =
             'Height of instrument: ${_v(value.heightOfInstrument)} m\nFinal elevation: ${_v(value.elevation)} m';
@@ -785,8 +823,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       return Column(
         children: [
           _field('benchmark', 'Benchmark elevation (m)'),
-          _field('backsight', 'Backsight reading (m)'),
-          _field('foresight', 'Foresight reading (m)'),
+          _buildLevelingInputs(),
         ],
       );
     return const SizedBox.shrink();
@@ -833,6 +870,55 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
         width: double.infinity,
         child: OutlinedButton.icon(
           onPressed: _addTraverseLine,
+          icon: const Icon(Icons.add, size: 18),
+          label: const Text('Add line'),
+        ),
+      ),
+    ],
+  );
+
+  Widget _buildLevelingInputs() => Column(
+    children: [
+      for (var i = 0; i < _levelingBacksights.length; i++) ...[
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: GlassInputField(
+                controller: _levelingBacksights[i],
+                label: 'Line ${i + 1} - Backsight (m)',
+                hint: '1.523',
+                keyboardType: TextInputType.number,
+                prefixIcon: Icons.remove_red_eye,
+              ),
+            ),
+            if (_levelingBacksights.length > 1 && i > 0) ...[
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => _removeLevelingLine(i),
+                icon: const Icon(Icons.delete_outline, size: 20),
+                style: IconButton.styleFrom(
+                  foregroundColor: Colors.red.withValues(alpha: 0.7),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 12),
+        GlassInputField(
+          controller: _levelingForesights[i],
+          label: 'Line ${i + 1} - Foresight (m)',
+          hint: '1.234',
+          keyboardType: TextInputType.number,
+          prefixIcon: Icons.remove_red_eye,
+        ),
+        const SizedBox(height: 12),
+      ],
+      SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: _addLevelingLine,
           icon: const Icon(Icons.add, size: 18),
           label: const Text('Add line'),
         ),
