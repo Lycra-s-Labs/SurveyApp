@@ -508,9 +508,9 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       } else if (title.startsWith('Intersection')) {
         final value = intersection(
           AreaPoint(easting: _number('e1'), northing: _number('n1')),
-          _number('bearing1'),
+          dmsToDecimalDegrees(_controller('bearing1').text),
           AreaPoint(easting: _number('e2'), northing: _number('n2')),
-          _number('bearing2'),
+          dmsToDecimalDegrees(_controller('bearing2').text),
         );
         result =
             'Easting: ${_v(value.easting)} m\nNorthing: ${_v(value.northing)} m\nDistance from point 1: ${_v(value.distance1)} m\nDistance from point 2: ${_v(value.distance2)} m';
@@ -789,10 +789,10 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
         children: [
           _field('e1', 'Point 1 Easting'),
           _field('n1', 'Point 1 Northing'),
-          _field('bearing1', 'Point 1 bearing (°)'),
+          _field('bearing1', 'Point 1 bearing (DDD.MMSS)', hint: '52.3015'),
           _field('e2', 'Point 2 Easting'),
           _field('n2', 'Point 2 Northing'),
-          _field('bearing2', 'Point 2 bearing (°)'),
+          _field('bearing2', 'Point 2 bearing (DDD.MMSS)', hint: '310.1545'),
         ],
       );
     if (title.startsWith('Resection'))

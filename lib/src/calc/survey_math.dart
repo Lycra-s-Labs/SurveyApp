@@ -1,5 +1,41 @@
 import 'dart:math';
 
+double dmsToDecimalDegrees(String input) {
+  final value = input.trim();
+  if (value.isEmpty) {
+    throw const FormatException('Enter a bearing in DDD.MMSS format.');
+  }
+
+  final match = RegExp(r'^(\d{1,3})(?:\.(\d{1,4}))?$').firstMatch(value);
+  if (match == null) {
+    throw const FormatException(
+      'Bearing must use DDD.MMSS format, for example 52.3015.',
+    );
+  }
+
+  final degrees = int.parse(match.group(1)!);
+  final minSec = (match.group(2) ?? '').padRight(4, '0');
+  final minutes = int.parse(minSec.substring(0, 2));
+  final seconds = int.parse(minSec.substring(2, 4));
+
+  if (degrees > 360) {
+    throw const FormatException('Bearing degrees must be between 0 and 360.');
+  }
+  if (minutes > 59) {
+    throw const FormatException('Bearing minutes must be between 0 and 59.');
+  }
+  if (seconds > 59) {
+    throw const FormatException('Bearing seconds must be between 0 and 59.');
+  }
+  if (degrees == 360 && (minutes != 0 || seconds != 0)) {
+    throw const FormatException(
+      'Bearing 360° must have 00 minutes and 00 seconds.',
+    );
+  }
+
+  return degrees + (minutes / 60.0) + (seconds / 3600.0);
+}
+
 class LatitudeDeparture {
   final double latitude;
   final double departure;
@@ -14,7 +50,8 @@ class LatitudeDeparture {
   }
 
   @override
-  String toString() => 'LatitudeDeparture(latitude: $latitude, departure: $departure)';
+  String toString() =>
+      'LatitudeDeparture(latitude: $latitude, departure: $departure)';
 
   @override
   bool operator ==(Object other) =>
@@ -53,7 +90,8 @@ class CoordinateSolution {
           northing == other.northing;
 
   @override
-  int get hashCode => latitudeDeparture.hashCode ^ easting.hashCode ^ northing.hashCode;
+  int get hashCode =>
+      latitudeDeparture.hashCode ^ easting.hashCode ^ northing.hashCode;
 }
 
 class TraverseLineInput {
@@ -63,7 +101,8 @@ class TraverseLineInput {
   const TraverseLineInput({required this.distance, required this.bearingDeg});
 
   @override
-  String toString() => 'TraverseLineInput(distance: $distance, bearingDeg: $bearingDeg)';
+  String toString() =>
+      'TraverseLineInput(distance: $distance, bearingDeg: $bearingDeg)';
 
   @override
   bool operator ==(Object other) =>
@@ -143,7 +182,10 @@ class AreaPoint {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AreaPoint && runtimeType == other.runtimeType && easting == other.easting && northing == other.northing;
+      other is AreaPoint &&
+          runtimeType == other.runtimeType &&
+          easting == other.easting &&
+          northing == other.northing;
 
   @override
   int get hashCode => easting.hashCode ^ northing.hashCode;
@@ -161,7 +203,8 @@ class CircleResult {
   });
 
   @override
-  String toString() => 'CircleResult(centerEasting: $centerEasting, centerNorthing: $centerNorthing, radius: $radius)';
+  String toString() =>
+      'CircleResult(centerEasting: $centerEasting, centerNorthing: $centerNorthing, radius: $radius)';
 }
 
 class IntersectionResult {
@@ -178,7 +221,8 @@ class IntersectionResult {
   });
 
   @override
-  String toString() => 'IntersectionResult(easting: $easting, northing: $northing, distance1: $distance1, distance2: $distance2)';
+  String toString() =>
+      'IntersectionResult(easting: $easting, northing: $northing, distance1: $distance1, distance2: $distance2)';
 }
 
 class ResectionResult {
@@ -193,7 +237,8 @@ class ResectionResult {
   });
 
   @override
-  String toString() => 'ResectionResult(easting: $easting, northing: $northing, residuals: $residuals)';
+  String toString() =>
+      'ResectionResult(easting: $easting, northing: $northing, residuals: $residuals)';
 }
 
 class MissingLinesResult {
@@ -244,7 +289,8 @@ class SecantsResult {
   });
 
   @override
-  String toString() => 'SecantsResult(offsets: $offsets, distances: $distances, totalArea: $totalArea)';
+  String toString() =>
+      'SecantsResult(offsets: $offsets, distances: $distances, totalArea: $totalArea)';
 }
 
 double normalizeBearing(double degrees) {
@@ -292,13 +338,26 @@ double quadrantBearingToWcb(String prefix, double angleDeg, String suffix) {
   return normalizeBearing(wcb);
 }
 
-double internalAngleFromBearings(double firstBearingDeg, double secondBearingDeg) {
-  final diff = (normalizeBearing(secondBearingDeg) - normalizeBearing(firstBearingDeg)).abs();
+double internalAngleFromBearings(
+  double firstBearingDeg,
+  double secondBearingDeg,
+) {
+  final diff =
+      (normalizeBearing(secondBearingDeg) - normalizeBearing(firstBearingDeg))
+          .abs();
   return diff > 180.0 ? 360.0 - diff : diff;
 }
 
-double bearingFromKnownAndInternal(double knownBearingDeg, double internalAngleDeg, bool turnRight) {
-  return normalizeBearing(turnRight ? knownBearingDeg + internalAngleDeg : knownBearingDeg - internalAngleDeg);
+double bearingFromKnownAndInternal(
+  double knownBearingDeg,
+  double internalAngleDeg,
+  bool turnRight,
+) {
+  return normalizeBearing(
+    turnRight
+        ? knownBearingDeg + internalAngleDeg
+        : knownBearingDeg - internalAngleDeg,
+  );
 }
 
 LatitudeDeparture latitudeDeparture(double distance, double bearingDeg) {
@@ -308,7 +367,12 @@ LatitudeDeparture latitudeDeparture(double distance, double bearingDeg) {
   return LatitudeDeparture(latitude: latitude, departure: departure);
 }
 
-CoordinateSolution coordinateFromStart(double startEasting, double startNorthing, double distance, double bearingDeg) {
+CoordinateSolution coordinateFromStart(
+  double startEasting,
+  double startNorthing,
+  double distance,
+  double bearingDeg,
+) {
   final ld = latitudeDeparture(distance, bearingDeg);
   return CoordinateSolution(
     latitudeDeparture: ld,
@@ -317,13 +381,23 @@ CoordinateSolution coordinateFromStart(double startEasting, double startNorthing
   );
 }
 
-double distanceBetweenCoordinates(double startEasting, double startNorthing, double endEasting, double endNorthing) {
+double distanceBetweenCoordinates(
+  double startEasting,
+  double startNorthing,
+  double endEasting,
+  double endNorthing,
+) {
   final deltaE = endEasting - startEasting;
   final deltaN = endNorthing - startNorthing;
   return sqrt(deltaE * deltaE + deltaN * deltaN);
 }
 
-double bearingBetweenCoordinates(double startEasting, double startNorthing, double endEasting, double endNorthing) {
+double bearingBetweenCoordinates(
+  double startEasting,
+  double startNorthing,
+  double endEasting,
+  double endNorthing,
+) {
   final deltaE = endEasting - startEasting;
   final deltaN = endNorthing - startNorthing;
   final radians = atan2(deltaE, deltaN);
@@ -341,10 +415,17 @@ double? traverseAccuracyRatio(double totalDistance, double linearMisclose) {
 TraverseAnalysis analyzeTraverse(List<TraverseLineInput> lines) {
   final results = lines.map((input) {
     final ld = latitudeDeparture(input.distance, input.bearingDeg);
-    return TraverseLineResult(input: input, latitude: ld.latitude, departure: ld.departure);
+    return TraverseLineResult(
+      input: input,
+      latitude: ld.latitude,
+      departure: ld.departure,
+    );
   }).toList();
 
-  final totalDistance = results.fold<double>(0.0, (sum, r) => sum + r.input.distance);
+  final totalDistance = results.fold<double>(
+    0.0,
+    (sum, r) => sum + r.input.distance,
+  );
   final sumLatitude = results.fold<double>(0.0, (sum, r) => sum + r.latitude);
   final sumDeparture = results.fold<double>(0.0, (sum, r) => sum + r.departure);
   final misclose = linearMisclose(sumLatitude, sumDeparture);
@@ -357,15 +438,27 @@ TraverseAnalysis analyzeTraverse(List<TraverseLineInput> lines) {
             departure: -sumDeparture * (r.input.distance / totalDistance),
           );
         }).toList()
-      : results.map((_) => const LatitudeDeparture(latitude: 0.0, departure: 0.0)).toList();
+      : results
+            .map((_) => const LatitudeDeparture(latitude: 0.0, departure: 0.0))
+            .toList();
 
-  final totalAbsLatitude = results.fold<double>(0.0, (sum, r) => sum + r.latitude.abs());
-  final totalAbsDeparture = results.fold<double>(0.0, (sum, r) => sum + r.departure.abs());
+  final totalAbsLatitude = results.fold<double>(
+    0.0,
+    (sum, r) => sum + r.latitude.abs(),
+  );
+  final totalAbsDeparture = results.fold<double>(
+    0.0,
+    (sum, r) => sum + r.departure.abs(),
+  );
 
   final transitCorrections = results.map((r) {
     return LatitudeDeparture(
-      latitude: totalAbsLatitude > 0.0 ? -sumLatitude * (r.latitude.abs() / totalAbsLatitude) : 0.0,
-      departure: totalAbsDeparture > 0.0 ? -sumDeparture * (r.departure.abs() / totalAbsDeparture) : 0.0,
+      latitude: totalAbsLatitude > 0.0
+          ? -sumLatitude * (r.latitude.abs() / totalAbsLatitude)
+          : 0.0,
+      departure: totalAbsDeparture > 0.0
+          ? -sumDeparture * (r.departure.abs() / totalAbsDeparture)
+          : 0.0,
     );
   }).toList();
 
@@ -400,7 +493,8 @@ CircleResult centerOfCircle(AreaPoint p1, AreaPoint p2, AreaPoint p3) {
 
   final e = a * (p1.easting + p2.easting) + b * (p1.northing + p2.northing);
   final f = c * (p1.easting + p3.easting) + d * (p1.northing + p3.northing);
-  final g = 2.0 * (a * (p3.northing - p2.northing) - b * (p3.easting - p2.easting));
+  final g =
+      2.0 * (a * (p3.northing - p2.northing) - b * (p3.easting - p2.easting));
 
   if (g == 0.0) {
     return CircleResult(centerEasting: 0.0, centerNorthing: 0.0, radius: 0.0);
@@ -408,15 +502,23 @@ CircleResult centerOfCircle(AreaPoint p1, AreaPoint p2, AreaPoint p3) {
 
   final centerEasting = (d * e - b * f) / g;
   final centerNorthing = (a * f - c * e) / g;
-  final radius = sqrt((p1.easting - centerEasting) * (p1.easting - centerEasting) +
-      (p1.northing - centerNorthing) * (p1.northing - centerNorthing));
+  final radius = sqrt(
+    (p1.easting - centerEasting) * (p1.easting - centerEasting) +
+        (p1.northing - centerNorthing) * (p1.northing - centerNorthing),
+  );
 
-  return CircleResult(centerEasting: centerEasting, centerNorthing: centerNorthing, radius: radius);
+  return CircleResult(
+    centerEasting: centerEasting,
+    centerNorthing: centerNorthing,
+    radius: radius,
+  );
 }
 
 IntersectionResult intersection(
-  AreaPoint p1, double bearing1,
-  AreaPoint p2, double bearing2,
+  AreaPoint p1,
+  double bearing1,
+  AreaPoint p2,
+  double bearing2,
 ) {
   final b1 = normalizeBearing(bearing1) * pi / 180.0;
   final b2 = normalizeBearing(bearing2) * pi / 180.0;
@@ -426,25 +528,59 @@ IntersectionResult intersection(
 
   final denominator = cot2 - cot1;
   if (denominator.abs() < 1e-10) {
-    return IntersectionResult(easting: 0.0, northing: 0.0, distance1: 0.0, distance2: 0.0);
+    return IntersectionResult(
+      easting: 0.0,
+      northing: 0.0,
+      distance1: 0.0,
+      distance2: 0.0,
+    );
   }
 
-  final easting = (p2.easting * cot2 - p1.easting * cot1 + p1.northing - p2.northing) / denominator;
-  final northing = (p2.northing * tan(b2) - p1.northing * tan(b1) + p1.easting - p2.easting) / (tan(b2) - tan(b1));
+  final easting =
+      (p2.easting * cot2 - p1.easting * cot1 + p1.northing - p2.northing) /
+      denominator;
+  final northing =
+      (p2.northing * tan(b2) -
+          p1.northing * tan(b1) +
+          p1.easting -
+          p2.easting) /
+      (tan(b2) - tan(b1));
 
-  final distance1 = distanceBetweenCoordinates(p1.easting, p1.northing, easting, northing);
-  final distance2 = distanceBetweenCoordinates(p2.easting, p2.northing, easting, northing);
+  final distance1 = distanceBetweenCoordinates(
+    p1.easting,
+    p1.northing,
+    easting,
+    northing,
+  );
+  final distance2 = distanceBetweenCoordinates(
+    p2.easting,
+    p2.northing,
+    easting,
+    northing,
+  );
 
-  return IntersectionResult(easting: easting, northing: northing, distance1: distance1, distance2: distance2);
+  return IntersectionResult(
+    easting: easting,
+    northing: northing,
+    distance1: distance1,
+    distance2: distance2,
+  );
 }
 
-ResectionResult resection(List<AreaPoint> knownPoints, List<double> observedAngles) {
+ResectionResult resection(
+  List<AreaPoint> knownPoints,
+  List<double> observedAngles,
+) {
   if (knownPoints.length < 3 || observedAngles.length < 3) {
     return ResectionResult(easting: 0.0, northing: 0.0, residuals: []);
   }
 
-  double bestEasting = knownPoints.fold<double>(0.0, (sum, p) => sum + p.easting) / knownPoints.length;
-  double bestNorthing = knownPoints.fold<double>(0.0, (sum, p) => sum + p.northing) / knownPoints.length;
+  double bestEasting =
+      knownPoints.fold<double>(0.0, (sum, p) => sum + p.easting) /
+      knownPoints.length;
+  double bestNorthing =
+      knownPoints.fold<double>(0.0, (sum, p) => sum + p.northing) /
+      knownPoints.length;
 
   for (int iter = 0; iter < 10; iter++) {
     double sumX = 0, sumY = 0, sumW = 0;
@@ -484,12 +620,18 @@ ResectionResult resection(List<AreaPoint> knownPoints, List<double> observedAngl
     finalResiduals.add(normalizeBearing(obsBearing - calcBearing));
   }
 
-  return ResectionResult(easting: bestEasting, northing: bestNorthing, residuals: finalResiduals);
+  return ResectionResult(
+    easting: bestEasting,
+    northing: bestNorthing,
+    residuals: finalResiduals,
+  );
 }
 
 MissingLinesResult twoMissingLines(
-  AreaPoint start, AreaPoint end,
-  double bearing1, double bearing2,
+  AreaPoint start,
+  AreaPoint end,
+  double bearing1,
+  double bearing2,
 ) {
   final b1 = normalizeBearing(bearing1) * pi / 180.0;
   final b2 = normalizeBearing(bearing2) * pi / 180.0;
@@ -504,7 +646,12 @@ MissingLinesResult twoMissingLines(
 
   final denominator = sinB1 * cosB2 - cosB1 * sinB2;
   if (denominator.abs() < 1e-10) {
-    return const MissingLinesResult(distance1: 0.0, distance2: 0.0, bearing1: 0.0, bearing2: 0.0);
+    return const MissingLinesResult(
+      distance1: 0.0,
+      distance2: 0.0,
+      bearing1: 0.0,
+      bearing2: 0.0,
+    );
   }
 
   final distance1 = (dx * cosB2 - dy * sinB2) / denominator;
@@ -558,7 +705,11 @@ SecantsResult secantsEqualWidth({
     totalArea += (offsets[i] + offsets[i + 1]) / 2.0 * sectionWidth;
   }
 
-  return SecantsResult(offsets: offsets, distances: distances, totalArea: totalArea.abs());
+  return SecantsResult(
+    offsets: offsets,
+    distances: distances,
+    totalArea: totalArea.abs(),
+  );
 }
 
 SecantsResult secantsNonEqualWidth({
@@ -575,12 +726,19 @@ SecantsResult secantsNonEqualWidth({
     totalArea += (offsets[i] + offsets[i + 1]) / 2.0 * width;
   }
 
-  return SecantsResult(offsets: offsets, distances: distances, totalArea: totalArea.abs());
+  return SecantsResult(
+    offsets: offsets,
+    distances: distances,
+    totalArea: totalArea.abs(),
+  );
 }
 
 AreaPoint centerPoint(List<AreaPoint> points) {
   if (points.isEmpty) return const AreaPoint(easting: 0.0, northing: 0.0);
   final sumE = points.fold<double>(0.0, (sum, p) => sum + p.easting);
   final sumN = points.fold<double>(0.0, (sum, p) => sum + p.northing);
-  return AreaPoint(easting: sumE / points.length, northing: sumN / points.length);
+  return AreaPoint(
+    easting: sumE / points.length,
+    northing: sumN / points.length,
+  );
 }
