@@ -117,12 +117,11 @@ class AboutScreen extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.accentBlue, AppTheme.accentPurple],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Colors.black,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppTheme.accentBlue.withValues(alpha: 0.35),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: AppTheme.accentBlue.withValues(alpha: 0.3),
@@ -131,7 +130,21 @@ class AboutScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.dashboard, color: Colors.white, size: 36),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(19),
+              child: ColorFiltered(
+                colorFilter: const ColorFilter.matrix(<double>[
+                  -1, 0, 0, 0, 255,
+                  0, -1, 0, 0, 255,
+                  0, 0, -1, 0, 255,
+                  0, 0, 0, 1, 0,
+                ]),
+                child: Image.asset(
+                  'assets/images/survey_toolkit_logo.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           Text(
