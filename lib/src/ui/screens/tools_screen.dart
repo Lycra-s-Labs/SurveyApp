@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../icons/lucide_icons.dart';
@@ -432,17 +434,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       final title = widget.tool.title;
       String result;
       if (title == 'Traverse Calculation') {
-        final lines = List.generate(
-          _traverseDistances.length,
-          (index) => TraverseLineInput(
-            distance:
-                double.tryParse(_traverseDistances[index].text.trim()) ??
-                (throw const FormatException('Enter every traverse distance.')),
-            bearingDeg:
-                double.tryParse(_traverseBearings[index].text.trim()) ??
-                (throw const FormatException('Enter every traverse bearing.')),
-          ),
-        );
+        final lines = _traverseLines();
         final analysis = analyzeTraverse(lines);
         result =
             'Total distance: ${_v(analysis.totalDistance)} m\n'
@@ -574,6 +566,35 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
     }
   }
 
+  List<TraverseLineInput> _traverseLines() => List.generate(
+    _traverseDistances.length,
+    (index) => TraverseLineInput(
+      distance:
+          double.tryParse(_traverseDistances[index].text.trim()) ??
+          (throw const FormatException('Enter every traverse distance.')),
+      bearingDeg:
+          double.tryParse(_traverseBearings[index].text.trim()) ??
+          (throw const FormatException('Enter every traverse bearing.')),
+    ),
+  );
+
+  void _showTraverse3D() {
+    try {
+      final lines = _traverseLines();
+      showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        builder: (_) => _Traverse3DSheet(lines: lines, color: widget.color),
+      );
+    } on FormatException catch (error) {
+      setState(() {
+        _error = error.message;
+        _result = null;
+      });
+    }
+  }
+
   List<AreaPoint> _points(int count) => List.generate(
     count,
     (index) => AreaPoint(
@@ -651,13 +672,40 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Input Parameters',
-                          style: TextStyle(
-                            color: widget.color,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Input Parameters',
+                                style: TextStyle(
+                                  color: widget.color,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (widget.tool.title == 'Traverse Calculation')
+                              OutlinedButton(
+                                onPressed: _showTraverse3D,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: widget.color,
+                                  side: BorderSide(
+                                    color: widget.color.withValues(alpha: 0.65),
+                                  ),
+                                  minimumSize: const Size(48, 34),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Text(
+                                  '3D',
+                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         _buildInputFields(),
@@ -1276,5 +1324,219 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
           ],
         );
     }
+  }
+}
+
+class _Traverse3DSheet extends StatefulWidget {
+  final List<TraverseLineInput> lines;
+  final Color color;
+
+  const _Traverse3DSheet({required this.lines, required this.color});
+
+  @override
+  State<_Traverse3DSheet> createState() => _Traverse3DSheetState();
+}
+
+class _Traverse3DSheetState extends State<_Traverse3DSheet> {
+  double _yaw = -0.65;
+  double _pitch = 0.8;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.72,
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceDark,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+            child: Row(
+              children: [
+                Icon(Icons.threed_rotation, color: widget.color),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Traverse 3D View',
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => setState(() {
+                    _yaw = -0.65;
+                    _pitch = 0.8;
+                  }),
+                  tooltip: 'Reset view',
+                  icon: const Icon(Icons.refresh),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: GlassCard(
+                padding: EdgeInsets.zero,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: GestureDetector(
+                    onPanUpdate: (details) => setState(() {
+                      _yaw += details.delta.dx * 0.01;
+                      _pitch = (_pitch - details.delta.dy * 0.01).clamp(
+                        0.25,
+                        1.35,
+                      );
+                    }),
+                    child: CustomPaint(
+                      painter: _Traverse3DPainter(
+                        lines: widget.lines,
+                        color: widget.color,
+                        yaw: _yaw,
+                        pitch: _pitch,
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 14),
+            child: Text(
+              'Drag to rotate • Traverse shown on Z = 0 plane',
+              style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Traverse3DPainter extends CustomPainter {
+  final List<TraverseLineInput> lines;
+  final Color color;
+  final double yaw;
+  final double pitch;
+
+  const _Traverse3DPainter({
+    required this.lines,
+    required this.color,
+    required this.yaw,
+    required this.pitch,
+  });
+
+  List<Offset> _coordinates() {
+    final points = <Offset>[Offset.zero];
+    for (final line in lines) {
+      final radians = line.bearingDeg * math.pi / 180.0;
+      final previous = points.last;
+      points.add(
+        Offset(
+          previous.dx + line.distance * math.sin(radians),
+          previous.dy + line.distance * math.cos(radians),
+        ),
+      );
+    }
+    return points;
+  }
+
+  Offset _project(Offset point, Size size, double scale, Offset center) {
+    final rotatedX = point.dx * math.cos(yaw) - point.dy * math.sin(yaw);
+    final rotatedY = point.dx * math.sin(yaw) + point.dy * math.cos(yaw);
+    final projectedY = rotatedY * math.cos(pitch);
+    return Offset(center.dx + rotatedX * scale, center.dy - projectedY * scale);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final points = _coordinates();
+    final maxExtent = points.fold<double>(1.0, (current, point) {
+      return math.max(current, math.max(point.dx.abs(), point.dy.abs()));
+    });
+    final scale = math.min(size.width, size.height) * 0.38 / maxExtent;
+    final center = Offset(size.width / 2, size.height / 2);
+    final projected = points
+        .map((point) => _project(point, size, scale, center))
+        .toList();
+
+    canvas.drawRect(Offset.zero & size, Paint()..color = AppTheme.surfaceDark);
+
+    final gridPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.08)
+      ..strokeWidth = 1;
+    for (var index = -4; index <= 4; index++) {
+      final offset = index * maxExtent * 0.5;
+      final a = _project(Offset(-maxExtent, offset), size, scale, center);
+      final b = _project(Offset(maxExtent, offset), size, scale, center);
+      final c = _project(Offset(offset, -maxExtent), size, scale, center);
+      final d = _project(Offset(offset, maxExtent), size, scale, center);
+      canvas.drawLine(a, b, gridPaint);
+      canvas.drawLine(c, d, gridPaint);
+    }
+
+    final axisPaint = Paint()
+      ..strokeWidth = 2
+      ..color = Colors.white.withValues(alpha: 0.35);
+    canvas.drawLine(
+      _project(Offset(-maxExtent, 0), size, scale, center),
+      _project(Offset(maxExtent, 0), size, scale, center),
+      axisPaint,
+    );
+    canvas.drawLine(
+      _project(Offset(0, -maxExtent), size, scale, center),
+      _project(Offset(0, maxExtent), size, scale, center),
+      axisPaint,
+    );
+
+    final linePaint = Paint()
+      ..color = color
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    for (var index = 0; index < projected.length - 1; index++) {
+      canvas.drawLine(projected[index], projected[index + 1], linePaint);
+    }
+
+    final pointPaint = Paint()..color = Colors.white;
+    final labelPainter = TextPainter(textDirection: TextDirection.ltr);
+    for (var index = 0; index < projected.length; index++) {
+      canvas.drawCircle(projected[index], 6, pointPaint);
+      canvas.drawCircle(projected[index], 4, Paint()..color = color);
+      labelPainter.text = TextSpan(
+        text: 'P${index + 1}',
+        style: const TextStyle(
+          color: AppTheme.textPrimary,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      );
+      labelPainter.layout();
+      labelPainter.paint(canvas, projected[index] + const Offset(8, -14));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _Traverse3DPainter oldDelegate) {
+    return oldDelegate.lines != lines ||
+        oldDelegate.color != color ||
+        oldDelegate.yaw != yaw ||
+        oldDelegate.pitch != pitch;
   }
 }
