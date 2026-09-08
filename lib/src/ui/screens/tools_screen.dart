@@ -342,9 +342,6 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
   final List<TextEditingController> _traverseDistances = [
     TextEditingController(),
   ];
-  final List<TextEditingController> _traverseBearings = [
-    TextEditingController(),
-  ];
   final List<TextEditingController> _levelingBacksights = [
     TextEditingController(),
   ];
@@ -360,9 +357,6 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
     for (final controller in _traverseDistances) {
       controller.dispose();
     }
-    for (final controller in _traverseBearings) {
-      controller.dispose();
-    }
     for (final controller in _levelingBacksights) {
       controller.dispose();
     }
@@ -375,16 +369,13 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
   void _addTraverseLine() {
     setState(() {
       _traverseDistances.add(TextEditingController());
-      _traverseBearings.add(TextEditingController());
     });
   }
 
   void _removeTraverseLine(int index) {
     setState(() {
       _traverseDistances[index].dispose();
-      _traverseBearings[index].dispose();
       _traverseDistances.removeAt(index);
-      _traverseBearings.removeAt(index);
     });
   }
 
@@ -447,7 +438,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
           _number('startE'),
           _number('startN'),
           _number('distance'),
-          _number('bearing'),
+          _bearingValue('bearing'),
         );
         result =
             'Easting: ${_v(value.easting)} m\nNorthing: ${_v(value.northing)} m\nLatitude: ${_v(value.latitudeDeparture.latitude)} m\nDeparture: ${_v(value.latitudeDeparture.departure)} m';
@@ -471,21 +462,21 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
         final value = twoMissingLines(
           AreaPoint(easting: _number('startE'), northing: _number('startN')),
           AreaPoint(easting: _number('endE'), northing: _number('endN')),
-          _number('bearing1'),
-          _number('bearing2'),
+          _bearingValue('bearing1'),
+          _bearingValue('bearing2'),
         );
         result =
             'Line 1: ${_v(value.distance1)} m at ${formatBearing(value.bearing1)}°\nLine 2: ${_v(value.distance2)} m at ${formatBearing(value.bearing2)}°';
       } else if (title.contains('WCB')) {
-        final bearing = _number('bearing');
+        final bearing = _bearingValue('bearing');
         result =
             'Quadrant bearing: ${wcbToQuadrantBearing(bearing)}\nNormalized WCB: ${formatBearing(bearing)}°';
       } else if (title.contains('Internal Angle')) {
         result =
-            'Internal angle: ${formatBearing(internalAngleFromBearings(_number('bearing1'), _number('bearing2')))}°';
+            'Internal angle: ${formatBearing(internalAngleFromBearings(_bearingValue('bearing1'), _bearingValue('bearing2')))}°';
       } else if (title.contains('Known + Internal')) {
         result =
-            'Right turn: ${formatBearing(bearingFromKnownAndInternal(_number('bearing'), _number('angle'), true))}°\nLeft turn: ${formatBearing(bearingFromKnownAndInternal(_number('bearing'), _number('angle'), false))}°';
+            'Right turn: ${formatBearing(bearingFromKnownAndInternal(_bearingValue('bearing'), _number('angle'), true))}°\nLeft turn: ${formatBearing(bearingFromKnownAndInternal(_bearingValue('bearing'), _number('angle'), false))}°';
       } else if (title == 'Area by Coordinates') {
         result = 'Area: ${_v(areaByCoordinates(_points(3)))} m²';
       } else if (title == 'Center of Circle') {
@@ -500,9 +491,9 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       } else if (title.startsWith('Intersection')) {
         final value = intersection(
           AreaPoint(easting: _number('e1'), northing: _number('n1')),
-          dmsToDecimalDegrees(_controller('bearing1').text),
+          _bearingValue('bearing1'),
           AreaPoint(easting: _number('e2'), northing: _number('n2')),
-          dmsToDecimalDegrees(_controller('bearing2').text),
+          _bearingValue('bearing2'),
         );
         result =
             'Easting: ${_v(value.easting)} m\nNorthing: ${_v(value.northing)} m\nDistance from point 1: ${_v(value.distance1)} m\nDistance from point 2: ${_v(value.distance2)} m';
@@ -572,11 +563,28 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       distance:
           double.tryParse(_traverseDistances[index].text.trim()) ??
           (throw const FormatException('Enter every traverse distance.')),
-      bearingDeg:
-          double.tryParse(_traverseBearings[index].text.trim()) ??
-          (throw const FormatException('Enter every traverse bearing.')),
+      bearingDeg: _bearingValue('traverseBearing$index'),
     ),
   );
+
+  double _bearingValue(String key) {
+    final degreesText = _controller('${key}Degrees').text.trim();
+    final minutesText = _controller('${key}Minutes').text.trim();
+    final secondsText = _controller('${key}Seconds').text.trim();
+    final degrees = int.tryParse(degreesText);
+    final minutes = int.tryParse(minutesText);
+    final seconds = int.tryParse(secondsText);
+
+    if (degrees == null || minutes == null || seconds == null) {
+      throw const FormatException(
+        'Enter degrees, minutes, and seconds for every bearing.',
+      );
+    }
+
+    return dmsToDecimalDegrees(
+      '$degrees.${minutes.toString().padLeft(2, '0')}${seconds.toString().padLeft(2, '0')}',
+    );
+  }
 
   void _showTraverse3D() {
     try {
@@ -768,6 +776,55 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
     ),
   );
 
+  Widget _dmsBearingFields(String key, String label) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppTheme.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: GlassInputField(
+                controller: _controller('${key}Degrees'),
+                label: 'Degrees',
+                hint: '52',
+                keyboardType: TextInputType.number,
+                prefixIcon: Icons.explore,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: GlassInputField(
+                controller: _controller('${key}Minutes'),
+                label: 'Minutes',
+                hint: '30',
+                keyboardType: TextInputType.number,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: GlassInputField(
+                controller: _controller('${key}Seconds'),
+                label: 'Seconds',
+                hint: '15',
+                keyboardType: TextInputType.number,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+
   Widget _pointFields(int count) => Column(
     children: [
       for (var index = 1; index <= count; index++) ...[
@@ -786,7 +843,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
           _field('startE', 'Start Easting'),
           _field('startN', 'Start Northing'),
           _field('distance', 'Distance (m)'),
-          _field('bearing', 'Bearing (°)'),
+          _dmsBearingFields('bearing', 'Bearing'),
         ],
       );
     }
@@ -807,24 +864,24 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
           _field('startN', 'Start Northing'),
           _field('endE', 'End Easting'),
           _field('endN', 'End Northing'),
-          _field('bearing1', 'Missing line 1 bearing (°)'),
-          _field('bearing2', 'Missing line 2 bearing (°)'),
+          _dmsBearingFields('bearing1', 'Missing line 1 bearing'),
+          _dmsBearingFields('bearing2', 'Missing line 2 bearing'),
         ],
       );
     }
     if (title.contains('WCB'))
-      return _field('bearing', 'Whole Circle Bearing (°)');
+      return _dmsBearingFields('bearing', 'Whole Circle Bearing');
     if (title.contains('Internal Angle'))
       return Column(
         children: [
-          _field('bearing1', 'First bearing (°)'),
-          _field('bearing2', 'Second bearing (°)'),
+          _dmsBearingFields('bearing1', 'First bearing'),
+          _dmsBearingFields('bearing2', 'Second bearing'),
         ],
       );
     if (title.contains('Known + Internal'))
       return Column(
         children: [
-          _field('bearing', 'Known bearing (°)'),
+          _dmsBearingFields('bearing', 'Known bearing'),
           _field('angle', 'Internal angle (°)'),
         ],
       );
@@ -837,10 +894,10 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
         children: [
           _field('e1', 'Point 1 Easting'),
           _field('n1', 'Point 1 Northing'),
-          _field('bearing1', 'Point 1 bearing (DDD.MMSS)', hint: '52.3015'),
+          _dmsBearingFields('bearing1', 'Point 1 bearing'),
           _field('e2', 'Point 2 Easting'),
           _field('n2', 'Point 2 Northing'),
-          _field('bearing2', 'Point 2 bearing (DDD.MMSS)', hint: '310.1545'),
+          _dmsBearingFields('bearing2', 'Point 2 bearing'),
         ],
       );
     if (title.startsWith('Resection'))
@@ -905,13 +962,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
           ],
         ),
         const SizedBox(height: 12),
-        GlassInputField(
-          controller: _traverseBearings[i],
-          label: 'Line ${i + 1} - Bearing (°)',
-          hint: '30.0',
-          keyboardType: TextInputType.number,
-          prefixIcon: Icons.explore,
-        ),
+        _dmsBearingFields('traverseBearing$i', 'Line ${i + 1} - Bearing'),
         const SizedBox(height: 12),
       ],
       SizedBox(
@@ -988,13 +1039,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
               prefixIcon: Icons.straighten,
             ),
             const SizedBox(height: 12),
-            GlassInputField(
-              controller: _traverseBearings[0],
-              label: 'Line 1 - Bearing (°)',
-              hint: '30.0',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.explore,
-            ),
+            _dmsBearingFields('traverseBearing0', 'Line 1 - Bearing'),
             const SizedBox(height: 8),
             for (var i = 1; i < _traverseDistances.length; i++) ...[
               GlassInputField(
@@ -1005,13 +1050,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
                 prefixIcon: Icons.straighten,
               ),
               const SizedBox(height: 12),
-              GlassInputField(
-                controller: _traverseBearings[i],
-                label: 'Line ${i + 1} - Bearing',
-                hint: '30.0',
-                keyboardType: TextInputType.number,
-                prefixIcon: Icons.explore,
-              ),
+              _dmsBearingFields('traverseBearing$i', 'Line ${i + 1} - Bearing'),
               const SizedBox(height: 12),
             ],
             SizedBox(
@@ -1051,13 +1090,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
               prefixIcon: Icons.straighten,
             ),
             const SizedBox(height: 12),
-            GlassInputField(
-              controller: TextEditingController(),
-              label: 'Bearing (°)',
-              hint: '30.0',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.explore,
-            ),
+            _dmsBearingFields('bearing', 'Bearing'),
           ],
         );
       case 'Coordinate → Bearing + Distance':
@@ -1099,13 +1132,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       case 'WCB ↔ Quadrant Bearing':
         return Column(
           children: [
-            GlassInputField(
-              controller: TextEditingController(),
-              label: 'Whole Circle Bearing (°)',
-              hint: '45.0',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.explore,
-            ),
+            _dmsBearingFields('bearing', 'Whole Circle Bearing'),
             const SizedBox(height: 8),
             Text(
               'Or enter Quadrant Bearing:',
@@ -1195,13 +1222,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
               prefixIcon: Icons.place,
             ),
             const SizedBox(height: 12),
-            GlassInputField(
-              controller: TextEditingController(),
-              label: 'Point 1 Bearing (°)',
-              hint: '45.0',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.explore,
-            ),
+            _dmsBearingFields('bearing1', 'Point 1 Bearing'),
             const SizedBox(height: 12),
             GlassInputField(
               controller: TextEditingController(),
@@ -1219,13 +1240,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
               prefixIcon: Icons.place,
             ),
             const SizedBox(height: 12),
-            GlassInputField(
-              controller: TextEditingController(),
-              label: 'Point 2 Bearing (°)',
-              hint: '135.0',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.explore,
-            ),
+            _dmsBearingFields('bearing2', 'Point 2 Bearing'),
           ],
         );
       case 'Resection (3-Point)':
