@@ -7,27 +7,6 @@ import '../widgets/common_widgets.dart';
 import '../../calc/survey_math.dart';
 import '../../theme/app_theme.dart';
 
-class ToolsScreen extends StatelessWidget {
-  const ToolsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Text(
-            'New tools are coming soon',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class CalculationToolsView extends StatelessWidget {
   const CalculationToolsView({super.key});
 

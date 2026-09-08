@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../navigation/glass_pill_navigation.dart';
 import 'home_screen.dart';
-import 'tools_screen.dart';
 import 'guides_screen.dart';
 import 'about_screen.dart';
 import 'settings_screen.dart';
@@ -35,7 +34,6 @@ class _MainShellState extends State<MainShell> {
 
   List<Widget> get _screens => [
     const HomeScreen(),
-    const ToolsScreen(),
     const GuidesScreen(),
     SettingsScreen(
       themeMode: widget.themeMode,
