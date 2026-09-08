@@ -72,8 +72,20 @@ class GlassInputField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      scrollPadding: const EdgeInsets.only(top: 24, bottom: 140),
       validator: validator,
       onChanged: onChanged,
+      onTap: () {
+        Future<void>.delayed(const Duration(milliseconds: 180), () {
+          if (!context.mounted) return;
+          Scrollable.ensureVisible(
+            context,
+            alignment: 0.18,
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+          );
+        });
+      },
       style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: label,

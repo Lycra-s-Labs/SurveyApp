@@ -316,16 +316,25 @@ class _ToolInputSheet extends StatefulWidget {
   State<_ToolInputSheet> createState() => _ToolInputSheetState();
 }
 
+class _LevelingLineControllers {
+  final TextEditingController backsight = TextEditingController();
+  final TextEditingController foresight = TextEditingController();
+  final TextEditingController intermediateSight = TextEditingController();
+
+  void dispose() {
+    backsight.dispose();
+    foresight.dispose();
+    intermediateSight.dispose();
+  }
+}
+
 class _ToolInputSheetState extends State<_ToolInputSheet> {
   final Map<String, TextEditingController> _controllers = {};
   final List<TextEditingController> _traverseDistances = [
     TextEditingController(),
   ];
-  final List<TextEditingController> _levelingBacksights = [
-    TextEditingController(),
-  ];
-  final List<TextEditingController> _levelingForesights = [
-    TextEditingController(),
+  final List<_LevelingLineControllers> _levelingLines = [
+    _LevelingLineControllers(),
   ];
 
   @override
@@ -336,11 +345,8 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
     for (final controller in _traverseDistances) {
       controller.dispose();
     }
-    for (final controller in _levelingBacksights) {
-      controller.dispose();
-    }
-    for (final controller in _levelingForesights) {
-      controller.dispose();
+    for (final line in _levelingLines) {
+      line.dispose();
     }
     super.dispose();
   }
@@ -360,17 +366,14 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
 
   void _addLevelingLine() {
     setState(() {
-      _levelingBacksights.add(TextEditingController());
-      _levelingForesights.add(TextEditingController());
+      _levelingLines.add(_LevelingLineControllers());
     });
   }
 
   void _removeLevelingLine(int index) {
     setState(() {
-      _levelingBacksights[index].dispose();
-      _levelingForesights[index].dispose();
-      _levelingBacksights.removeAt(index);
-      _levelingForesights.removeAt(index);
+      _levelingLines[index].dispose();
+      _levelingLines.removeAt(index);
     });
   }
 
@@ -499,23 +502,46 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
         );
         result = 'Area: ${_v(value.totalArea)} m²';
       } else if (title == 'Leveling Survey') {
-        final backsights = _levelingBacksights.map((controller) {
-          return double.tryParse(controller.text.trim()) ??
-              (throw const FormatException('Enter every backsight reading.'));
-        }).toList();
-        final foresights = _levelingForesights.map((controller) {
-          return double.tryParse(controller.text.trim()) ??
-              (throw const FormatException('Enter every foresight reading.'));
+        final levelingLines = _levelingLines.asMap().entries.map((entry) {
+          final lineNumber = entry.key + 1;
+          final line = entry.value;
+          final backsight = double.tryParse(line.backsight.text.trim());
+          final foresight = double.tryParse(line.foresight.text.trim());
+          final intermediateText = line.intermediateSight.text.trim();
+          final intermediateSight = intermediateText.isEmpty
+              ? null
+              : double.tryParse(intermediateText);
+          if (backsight == null || foresight == null) {
+            throw FormatException(
+              'Enter the backsight and foresight for Line $lineNumber.',
+            );
+          }
+          if (intermediateText.isNotEmpty && intermediateSight == null) {
+            throw FormatException(
+              'Enter a valid intermediate sight for Line $lineNumber.',
+            );
+          }
+          return LevelingLineInput(
+            backsight: backsight,
+            foresight: foresight,
+            intermediateSight: intermediateSight,
+          );
         }).toList();
         final value = levelingSurvey(
           benchmarkElevation: _number('benchmark'),
-          backsight: backsights.first,
-          foresight: foresights.last,
-          backsights: backsights,
-          foresights: foresights,
+          lines: levelingLines,
         );
-        result =
-            'Height of instrument: ${_v(value.heightOfInstrument)} m\nFinal elevation: ${_v(value.elevation)} m';
+        final lines = <String>[
+          'Benchmark RL: ${_v(_number('benchmark'))} m',
+          ...value.lines.expand((line) => [
+            'Line ${line.lineNumber} HI: ${_v(line.heightOfInstrument)} m',
+            if (line.intermediateElevation != null)
+              'Line ${line.lineNumber} IS RL: ${_v(line.intermediateElevation!)} m',
+            'Line ${line.lineNumber} FS RL: ${_v(line.foresightElevation)} m',
+          ]),
+          'Final RL: ${_v(value.elevation)} m',
+        ];
+        result = lines.join('\n');
       } else {
         throw const FormatException('This tool is not configured yet.');
       }
@@ -592,26 +618,45 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: AppTheme.surfaceDark,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppTheme.textMuted.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(2),
-            ),
+    final mediaQuery = MediaQuery.of(context);
+    final keyboardInset = mediaQuery.viewInsets.bottom;
+    final availableHeight = mediaQuery.size.height - keyboardInset;
+    final sheetHeight = keyboardInset > 0
+        ? availableHeight
+        : math.min(mediaQuery.size.height * 0.85, availableHeight);
+
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: SizedBox(
+        height: sheetHeight,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: AppTheme.surfaceDark,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.textMuted.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    20,
+                    20,
+                    math.max(32.0, keyboardInset + 32.0),
+                  ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -736,9 +781,11 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
                   ),
                 ],
               ),
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -956,52 +1003,89 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
   );
 
   Widget _buildLevelingInputs() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      for (var i = 0; i < _levelingBacksights.length; i++) ...[
+      for (var i = 0; i < _levelingLines.length; i++) ...[
+        _levelingLineCard(i, _levelingLines[i]),
+        if (i < _levelingLines.length - 1) const SizedBox(height: 12),
+      ],
+      const SizedBox(height: 12),
+      OutlinedButton.icon(
+        onPressed: _addLevelingLine,
+        icon: const Icon(Icons.add, size: 18),
+        label: const Text('Add line'),
+      ),
+    ],
+  );
+
+  Widget _levelingLineCard(int index, _LevelingLineControllers line) => GlassCard(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Icon(Icons.height, color: widget.color, size: 20),
+            const SizedBox(width: 8),
             Expanded(
-              child: GlassInputField(
-                controller: _levelingBacksights[i],
-                label: 'Line ${i + 1} - Backsight (m)',
-                hint: '1.523',
-                keyboardType: TextInputType.number,
-                prefixIcon: Icons.remove_red_eye,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Line ${index + 1}',
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    'One instrument setup: BS, FS, and optional IS',
+                    style: const TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ),
             ),
-            if (_levelingBacksights.length > 1 && i > 0) ...[
-              const SizedBox(width: 8),
+            if (_levelingLines.length > 1)
               IconButton(
-                onPressed: () => _removeLevelingLine(i),
+                onPressed: () => _removeLevelingLine(index),
                 icon: const Icon(Icons.delete_outline, size: 20),
+                tooltip: 'Delete Line ${index + 1}',
                 style: IconButton.styleFrom(
-                  foregroundColor: Colors.red.withValues(alpha: 0.7),
+                  foregroundColor: AppTheme.errorColor,
                   padding: const EdgeInsets.all(8),
                 ),
               ),
-            ],
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         GlassInputField(
-          controller: _levelingForesights[i],
-          label: 'Line ${i + 1} - Foresight (m)',
-          hint: '1.234',
+          controller: line.backsight,
+          label: 'Line ${index + 1} - Backsight (m)',
+          hint: '1.520',
           keyboardType: TextInputType.number,
-          prefixIcon: Icons.remove_red_eye,
+          prefixIcon: Icons.vertical_align_top,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
+        GlassInputField(
+          controller: line.foresight,
+          label: 'Line ${index + 1} - Foresight (m)',
+          hint: '1.850',
+          keyboardType: TextInputType.number,
+          prefixIcon: Icons.vertical_align_bottom,
+        ),
+        const SizedBox(height: 10),
+        GlassInputField(
+          controller: line.intermediateSight,
+          label: 'Line ${index + 1} - Intermediate Sight (IS) (m)',
+          hint: 'Optional, e.g. 1.210',
+          keyboardType: TextInputType.number,
+          prefixIcon: Icons.linear_scale,
+        ),
       ],
-      SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: _addLevelingLine,
-          icon: const Icon(Icons.add, size: 18),
-          label: const Text('Add line'),
-        ),
-      ),
-    ],
+    ),
   );
 
   // ignore: unused_element

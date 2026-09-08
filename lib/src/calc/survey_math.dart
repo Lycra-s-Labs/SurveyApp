@@ -259,22 +259,60 @@ class MissingLinesResult {
       'MissingLinesResult(distance1: $distance1, distance2: $distance2, bearing1: $bearing1, bearing2: $bearing2)';
 }
 
+class LevelingLineInput {
+  final double backsight;
+  final double foresight;
+  final double? intermediateSight;
+
+  const LevelingLineInput({
+    required this.backsight,
+    required this.foresight,
+    this.intermediateSight,
+  });
+}
+
+class LevelingLineResult {
+  final int lineNumber;
+  final double backsight;
+  final double foresight;
+  final double? intermediateSight;
+  final double heightOfInstrument;
+  final double? intermediateElevation;
+  final double foresightElevation;
+
+  const LevelingLineResult({
+    required this.lineNumber,
+    required this.backsight,
+    required this.foresight,
+    required this.intermediateSight,
+    required this.heightOfInstrument,
+    required this.intermediateElevation,
+    required this.foresightElevation,
+  });
+}
+
 class LevelingResult {
   final double elevation;
   final double backsight;
   final double foresight;
   final double heightOfInstrument;
+  final List<double> intermediateSights;
+  final List<double> intermediateElevations;
+  final List<LevelingLineResult> lines;
 
   const LevelingResult({
     required this.elevation,
     required this.backsight,
     required this.foresight,
     required this.heightOfInstrument,
+    this.intermediateSights = const [],
+    this.intermediateElevations = const [],
+    this.lines = const [],
   });
 
   @override
   String toString() =>
-      'LevelingResult(elevation: $elevation, backsight: $backsight, foresight: $foresight, heightOfInstrument: $heightOfInstrument)';
+      'LevelingResult(elevation: $elevation, backsight: $backsight, foresight: $foresight, heightOfInstrument: $heightOfInstrument, intermediateElevations: $intermediateElevations)';
 }
 
 class SecantsResult {
@@ -667,24 +705,70 @@ MissingLinesResult twoMissingLines(
 
 LevelingResult levelingSurvey({
   required double benchmarkElevation,
-  required double backsight,
-  required double foresight,
-  List<double>? backsights,
-  List<double>? foresights,
+  double? backsight,
+  double? foresight,
+  List<double> intermediateSights = const [],
+  List<LevelingLineInput>? lines,
 }) {
-  final totalBacksight = backsights == null
-      ? backsight
-      : backsights.fold(0.0, (sum, reading) => sum + reading);
-  final totalForesight = foresights == null
-      ? foresight
-      : foresights.fold(0.0, (sum, reading) => sum + reading);
-  final heightOfInstrument = benchmarkElevation + totalBacksight;
-  final elevation = heightOfInstrument - totalForesight;
+  final inputLines = lines ?? [
+    LevelingLineInput(
+      backsight: backsight ?? 0.0,
+      foresight: foresight ?? 0.0,
+      intermediateSight: intermediateSights.isEmpty
+          ? null
+          : intermediateSights.first,
+    ),
+  ];
+  if (inputLines.isEmpty) {
+    return const LevelingResult(
+      elevation: 0.0,
+      backsight: 0.0,
+      foresight: 0.0,
+      heightOfInstrument: 0.0,
+    );
+  }
+
+  var previousReducedLevel = benchmarkElevation;
+  final lineResults = <LevelingLineResult>[];
+  final allIntermediateSights = <double>[];
+  final allIntermediateElevations = <double>[];
+
+  for (var index = 0; index < inputLines.length; index++) {
+    final line = inputLines[index];
+    final heightOfInstrument = previousReducedLevel + line.backsight;
+    final intermediateElevation = line.intermediateSight == null
+        ? null
+        : heightOfInstrument - line.intermediateSight!;
+    final foresightElevation = heightOfInstrument - line.foresight;
+
+    if (line.intermediateSight != null) {
+      allIntermediateSights.add(line.intermediateSight!);
+      allIntermediateElevations.add(intermediateElevation!);
+    }
+    lineResults.add(
+      LevelingLineResult(
+        lineNumber: index + 1,
+        backsight: line.backsight,
+        foresight: line.foresight,
+        intermediateSight: line.intermediateSight,
+        heightOfInstrument: heightOfInstrument,
+        intermediateElevation: intermediateElevation,
+        foresightElevation: foresightElevation,
+      ),
+    );
+    previousReducedLevel = foresightElevation;
+  }
+
+  final firstLine = lineResults.first;
+  final lastLine = lineResults.last;
   return LevelingResult(
-    elevation: elevation,
-    backsight: totalBacksight,
-    foresight: totalForesight,
-    heightOfInstrument: heightOfInstrument,
+    elevation: previousReducedLevel,
+    backsight: firstLine.backsight,
+    foresight: lastLine.foresight,
+    heightOfInstrument: firstLine.heightOfInstrument,
+    intermediateSights: List.unmodifiable(allIntermediateSights),
+    intermediateElevations: List.unmodifiable(allIntermediateElevations),
+    lines: List.unmodifiable(lineResults),
   );
 }
 
