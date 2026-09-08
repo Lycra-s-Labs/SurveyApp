@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-enum AppTab { home, tools, guides, settings, about }
+enum AppTab { home, guides, settings, about }
 
 class GlassPillNavigation extends StatelessWidget {
   final AppTab currentTab;
@@ -18,7 +18,6 @@ class GlassPillNavigation extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final tabs = [
       _TabItem(tab: AppTab.home, icon: Icons.dashboard, label: 'Dashboard'),
-      _TabItem(tab: AppTab.tools, icon: Icons.build, label: 'Tools'),
       _TabItem(tab: AppTab.guides, icon: Icons.menu_book, label: 'Guides'),
       _TabItem(tab: AppTab.settings, icon: Icons.settings, label: 'Settings'),
       _TabItem(tab: AppTab.about, icon: Icons.info, label: 'About'),
