@@ -613,7 +613,7 @@ class _CreditItem extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 16,
               ),
-              onPressed: () {},
+              onPressed: null,
               tooltip: 'Open link',
             ),
         ],
