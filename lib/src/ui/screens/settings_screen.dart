@@ -37,7 +37,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 28),
             Text(
-              'Personalize your Survey Toolkit',
+              'Personalize your Geo.C experience',
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),

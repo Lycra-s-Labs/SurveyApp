@@ -3,17 +3,17 @@ import 'src/theme/app_theme.dart';
 import 'src/ui/screens/main_shell.dart';
 
 void main() {
-  runApp(const SurveyToolkitApp());
+  runApp(const GeoCApp());
 }
 
-class SurveyToolkitApp extends StatefulWidget {
-  const SurveyToolkitApp({super.key});
+class GeoCApp extends StatefulWidget {
+  const GeoCApp({super.key});
 
   @override
-  State<SurveyToolkitApp> createState() => _SurveyToolkitAppState();
+  State<GeoCApp> createState() => _GeoCAppState();
 }
 
-class _SurveyToolkitAppState extends State<SurveyToolkitApp> {
+class _GeoCAppState extends State<GeoCApp> {
   ThemeMode _themeMode = ThemeMode.system;
   Color _seedColor = AppTheme.accentBlue;
   bool _pureBlack = false;
@@ -30,7 +30,7 @@ class _SurveyToolkitAppState extends State<SurveyToolkitApp> {
                 : Brightness.dark),
     );
     return MaterialApp(
-      title: 'Survey Toolkit',
+      title: 'Geo.C',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightThemeFor(_seedColor),
       darkTheme: AppTheme.darkThemeFor(

@@ -1,6 +1,6 @@
-# Survey Toolkit
+# Geo.C
 
-Survey Toolkit is a Flutter-based calculator application designed for civil engineering students and field surveyors. It offers 15+ essential surveying computations with a dark glass-morphism interface.
+Geo.C is a Flutter-based calculator application designed for civil engineering students and field surveyors. It offers 15+ essential surveying computations with a dark glass-morphism interface.
 
 ## Features
 
@@ -21,7 +21,7 @@ Survey Toolkit is a Flutter-based calculator application designed for civil engi
 ## Project Structure
 
 ```
-survey_toolkit/
+geoc/
 ├── lib/
 │   ├── main.dart                    # Application entry point
 │   └── src/
