@@ -13,7 +13,7 @@ Geo.C is a Flutter-based calculator application designed for civil engineering s
 
 - **Framework**: Flutter 3.x (Dart)
 - **UI**: Material 3, custom glass-morphism decorations
-- **Icons**: Lucide Icons
+- **Icons**: Material Icons with a local Lucide-style compatibility layer
 - **Typography**: Google Fonts (Inter)
 - **Animations**: `flutter_animate`
 - **Target Platforms**: Android
