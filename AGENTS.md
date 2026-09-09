@@ -37,8 +37,8 @@ survey_toolkit/
 ## Navigation (Glass Pill Design)
 4 tabs in a floating glass pill at bottom:
 1. **Dashboard** (`AppTab.home`) - Quick access grid
-2. **Tools** (`AppTab.tools`) - All calculations organized by category
-3. **Guides** (`AppTab.guides`) - Tutorials with difficulty levels
+2. **Guides** (`AppTab.guides`) - Tutorials with difficulty levels
+3. **Settings** (`AppTab.settings`) - Theme mode and appearance controls
 4. **About** (`AppTab.about`) - App info, tech stack, credits
 
 ## Calculations Implemented (survey_math.dart)
