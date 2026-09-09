@@ -16,7 +16,7 @@ class GuidesScreen extends StatelessWidget {
         color: AppTheme.accentBlue,
         items: [
           _GuideItem(
-            'Introduction to Survey Toolkit',
+            'Introduction to Geo.C',
             'Overview of the app, navigation, and basic concepts for civil engineering students.',
             Icons.info,
             'beginner',
@@ -562,8 +562,8 @@ class _GuideDetailSheet extends StatelessWidget {
 
   String _getGuideContent(String title) {
     const guides = {
-      'Introduction to Survey Toolkit':
-          'Survey Toolkit is a comprehensive calculation app designed for civil engineering students and field surveyors. '
+      'Introduction to Geo.C':
+          'Geo.C is a comprehensive calculation app designed for civil engineering students and field surveyors. '
           'The app provides 15+ essential surveying calculations organized into intuitive categories.\n\n'
           'Navigation: Use the glass pill at the bottom to switch between Dashboard (quick access), Tools (all calculations), '
           'Guides (this section), and About (app info).\n\n'

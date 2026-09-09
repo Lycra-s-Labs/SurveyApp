@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:survey_toolkit/src/calc/survey_math.dart';
+import 'package:geoc/src/calc/survey_math.dart';
 
 void main() {
   group('dmsToDecimalDegrees', () {

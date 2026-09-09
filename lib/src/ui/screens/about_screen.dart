@@ -59,7 +59,7 @@ class AboutScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Survey Toolkit v1.0.0',
+                                'Geo.C v1.0.0',
                                 style: TextStyle(
                                   color: Theme.of(
                                     context,
@@ -140,7 +140,7 @@ class AboutScreen extends StatelessWidget {
                   0, 0, 0, 1, 0,
                 ]),
                 child: Image.asset(
-                  'assets/images/survey_toolkit_logo.png',
+                  'assets/images/geoc_logo.png',
                   fit: BoxFit.cover,
                 ),
               ),
@@ -148,7 +148,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Survey Toolkit',
+            'Geo.C',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
