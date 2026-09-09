@@ -68,36 +68,38 @@ class GlassInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      scrollPadding: const EdgeInsets.only(top: 24, bottom: 140),
-      validator: validator,
-      onChanged: onChanged,
-      onTap: () {
-        Future<void>.delayed(const Duration(milliseconds: 180), () {
-          if (!context.mounted) return;
-          Scrollable.ensureVisible(
-            context,
-            alignment: 0.18,
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOut,
-          );
-        });
-      },
-      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        helperText: helperText,
-        prefixIcon: prefixIcon != null
-            ? Icon(
-                prefixIcon,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                size: 20,
-              )
-            : null,
+    return Builder(
+      builder: (fieldContext) => TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        scrollPadding: const EdgeInsets.only(top: 24, bottom: 140),
+        validator: validator,
+        onChanged: onChanged,
+        onTap: () {
+          Future<void>.delayed(const Duration(milliseconds: 180), () {
+            if (!fieldContext.mounted) return;
+            Scrollable.ensureVisible(
+              fieldContext,
+              alignment: 0.18,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+            );
+          });
+        },
+        style: TextStyle(color: Theme.of(fieldContext).colorScheme.onSurface),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          helperText: helperText,
+          prefixIcon: prefixIcon != null
+              ? Icon(
+                  prefixIcon,
+                  color: Theme.of(fieldContext).colorScheme.onSurfaceVariant,
+                  size: 20,
+                )
+              : null,
+        ),
       ),
     );
   }
