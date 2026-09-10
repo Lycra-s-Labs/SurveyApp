@@ -46,3 +46,6 @@ app.*.map.json
 
 # FVM cache
 /.fvm_cache
+
+# VS Code settings folder
+.vscode/
