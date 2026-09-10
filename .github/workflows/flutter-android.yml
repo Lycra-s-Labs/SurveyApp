@@ -7,10 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       publish_release:
-        description: Publish APKs to a GitHub Release after build.
+        description: 'Publish/Attach APKs to an existing GitHub Release?'
         required: true
         type: boolean
-        default: false
+        default: true
+      release_tag:
+        description: 'Target Release Tag (e.g., v1.0.0). Required if triggered manually.'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -18,11 +22,10 @@ permissions:
 jobs:
   build:
     name: Build debug and release APKs
-    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out tag
+      - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -42,33 +45,25 @@ jobs:
       - name: Build release APK
         run: flutter build apk --release
 
-      - name: Upload debug APK
+      - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
           path: build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error
 
-      - name: Upload release APK
+      - name: Upload release APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
 
-      - name: Validate release ref
-        if: ${{ inputs.publish_release }}
-        run: |
-          if [ "${{ github.ref_type }}" != "tag" ]; then
-            echo "GitHub Release publishing requires running workflow from a Git tag."
-            exit 1
-          fi
-
-      - name: Publish GitHub Release
-        if: ${{ inputs.publish_release }}
+      - name: Publish/Attach APKs to GitHub Release
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_release) }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
           files: |
-            build/app/outputs/flutter-apk/app-debug.apk
             build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
