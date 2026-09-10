@@ -1,13 +1,11 @@
 name: Build Android APKs
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
-      git_tag:
-        description: Git tag to build, for example v1.0.0. Leave empty to build current ref.
-        required: false
-        type: string
-        default: ''
       publish_release:
         description: Publish APKs to a GitHub Release after build.
         required: true
@@ -20,13 +18,13 @@ permissions:
 jobs:
   build:
     name: Build debug and release APKs
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out source
+      - name: Check out tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.git_tag != '' && inputs.git_tag || github.ref }}
           fetch-depth: 0
 
       - name: Set up Flutter
@@ -44,26 +42,25 @@ jobs:
       - name: Build release APK
         run: flutter build apk --release
 
-      - name: Prepare APK artifacts
-        run: |
-          mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-debug.apk dist/app-debug.apk
-          cp build/app/outputs/flutter-apk/app-release.apk dist/app-release.apk
-
-      - name: Upload APKs to workflow run
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-apks
-          path: dist/*.apk
+          name: app-debug.apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
 
-      - name: Validate release tag
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+      - name: Validate release ref
         if: ${{ inputs.publish_release }}
-        env:
-          BUILD_TAG: ${{ inputs.git_tag }}
         run: |
-          if [ -z "$BUILD_TAG" ]; then
-            echo "git_tag is required when publish_release is enabled."
+          if [ "${{ github.ref_type }}" != "tag" ]; then
+            echo "GitHub Release publishing requires running workflow from a Git tag."
             exit 1
           fi
 
@@ -71,5 +68,7 @@ jobs:
         if: ${{ inputs.publish_release }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.git_tag }}
-          files: dist/*.apk
+          tag_name: ${{ github.ref_name }}
+          files: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build/app/outputs/flutter-apk/app-release.apk
