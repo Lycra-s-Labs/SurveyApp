@@ -1,0 +1,75 @@
+name: Build Android APKs
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_tag:
+        description: Git tag to build, for example v1.0.0. Leave empty to build current ref.
+        required: false
+        type: string
+        default: ''
+      publish_release:
+        description: Publish APKs to a GitHub Release after build.
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build debug and release APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_tag != '' && inputs.git_tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Prepare APK artifacts
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-debug.apk dist/app-debug.apk
+          cp build/app/outputs/flutter-apk/app-release.apk dist/app-release.apk
+
+      - name: Upload APKs to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Validate release tag
+        if: ${{ inputs.publish_release }}
+        env:
+          BUILD_TAG: ${{ inputs.git_tag }}
+        run: |
+          if [ -z "$BUILD_TAG" ]; then
+            echo "git_tag is required when publish_release is enabled."
+            exit 1
+          fi
+
+      - name: Publish GitHub Release
+        if: ${{ inputs.publish_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.git_tag }}
+          files: dist/*.apk
