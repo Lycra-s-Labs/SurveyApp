@@ -178,6 +178,11 @@ class AppTheme {
           secondary: monochrome ? Colors.black : null,
           tertiary: monochrome ? Colors.grey : null,
           onPrimary: monochrome ? Colors.white : null,
+          surface: const Color(0xFFF7F9FC),
+          surfaceContainerHighest: const Color(0xFFE9EEF5),
+          onSurface: const Color(0xFF17212B),
+          onSurfaceVariant: const Color(0xFF52606D),
+          outline: const Color(0xFF9AA8B5),
         );
     final base = ThemeData(
       useMaterial3: true,
@@ -186,10 +191,53 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFFF7F9FC),
     );
     return base.copyWith(
-      textTheme: GoogleFonts.interTextTheme(base.textTheme),
-      appBarTheme: const AppBarTheme(
+      textTheme: GoogleFonts.interTextTheme(base.textTheme).apply(
+        bodyColor: scheme.onSurface,
+        displayColor: scheme.onSurface,
+      ),
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        foregroundColor: scheme.onSurface,
+        titleTextStyle: GoogleFonts.inter(
+          color: scheme.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: scheme.outline.withValues(alpha: 0.3)),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        titleTextStyle: GoogleFonts.inter(
+          color: scheme.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        contentTextStyle: GoogleFonts.inter(color: scheme.onSurfaceVariant),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.primary,
+          side: BorderSide(color: scheme.primary, width: 1.5),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -200,6 +248,7 @@ class AppTheme {
           vertical: 14,
         ),
       ),
+      dividerTheme: DividerThemeData(color: scheme.outline.withValues(alpha: 0.35)),
     );
   }
 
@@ -228,13 +277,15 @@ class AppTheme {
   }
 
   static BoxDecoration glassPill({double radius = 28}) {
+    final surface = _lightMode ? Colors.white : surfaceDark;
+    final border = _lightMode ? const Color(0x26000000) : glassBorder;
     return BoxDecoration(
-      color: surfaceDark.withValues(alpha: 0.6),
+      color: surface.withValues(alpha: 0.92),
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: glassBorder, width: 1),
+      border: Border.all(color: border, width: 1),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.4),
+          color: Colors.black.withValues(alpha: _lightMode ? 0.12 : 0.4),
           blurRadius: 24,
           offset: const Offset(0, 8),
         ),

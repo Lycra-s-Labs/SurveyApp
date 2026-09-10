@@ -649,9 +649,9 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       child: SizedBox(
         height: sheetHeight,
         child: Container(
-          decoration: const BoxDecoration(
-            color: AppTheme.surfaceDark,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
