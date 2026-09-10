@@ -1477,9 +1477,9 @@ class _Traverse3DSheetState extends State<_Traverse3DSheet> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.72,
-      decoration: const BoxDecoration(
-        color: AppTheme.surfaceDark,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [

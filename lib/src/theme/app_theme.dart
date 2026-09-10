@@ -210,7 +210,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: scheme.outline.withValues(alpha: 0.3)),
+          side: BorderSide(color: Colors.black.withValues(alpha: 0.3)),
         ),
         margin: EdgeInsets.zero,
       ),
