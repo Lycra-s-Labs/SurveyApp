@@ -60,7 +60,7 @@ class AboutScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Geo.C v1.1.0',
+                                'Geo.C v1.0.0',
                                 style: TextStyle(
                                   color: Theme.of(
                                     context,
@@ -526,7 +526,7 @@ class AboutScreen extends StatelessWidget {
               ),
               _LegalItem(
                 'Version',
-                '1.1.0+2 — Built for civil engineering students',
+                '1.0.0+1 — Built for civil engineering students',
                 Icons.label,
               ),
             ],
