@@ -319,12 +319,27 @@ class _ToolInputSheet extends StatefulWidget {
 class _LevelingLineControllers {
   final TextEditingController backsight = TextEditingController();
   final TextEditingController foresight = TextEditingController();
-  final TextEditingController intermediateSight = TextEditingController();
+  final List<TextEditingController> intermediateSights = [];
+  final List<FocusNode> intermediateSightFocusNodes = [];
+
+  _LevelingLineControllers() {
+    addIntermediateSight();
+  }
+
+  void addIntermediateSight() {
+    intermediateSights.add(TextEditingController());
+    intermediateSightFocusNodes.add(FocusNode());
+  }
 
   void dispose() {
     backsight.dispose();
     foresight.dispose();
-    intermediateSight.dispose();
+    for (final controller in intermediateSights) {
+      controller.dispose();
+    }
+    for (final focusNode in intermediateSightFocusNodes) {
+      focusNode.dispose();
+    }
   }
 }
 
@@ -507,24 +522,26 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
           final line = entry.value;
           final backsight = double.tryParse(line.backsight.text.trim());
           final foresight = double.tryParse(line.foresight.text.trim());
-          final intermediateText = line.intermediateSight.text.trim();
-          final intermediateSight = intermediateText.isEmpty
-              ? null
-              : double.tryParse(intermediateText);
+          final intermediateSights = <double>[];
+          for (var isIndex = 0; isIndex < line.intermediateSights.length; isIndex++) {
+            final intermediateText = line.intermediateSights[isIndex].text.trim();
+            final intermediateSight = double.tryParse(intermediateText);
+            if (intermediateSight == null) {
+              throw FormatException(
+                'Enter a valid IS ${isIndex + 1} for Line $lineNumber.',
+              );
+            }
+            intermediateSights.add(intermediateSight);
+          }
           if (backsight == null || foresight == null) {
             throw FormatException(
               'Enter the backsight and foresight for Line $lineNumber.',
             );
           }
-          if (intermediateText.isNotEmpty && intermediateSight == null) {
-            throw FormatException(
-              'Enter a valid intermediate sight for Line $lineNumber.',
-            );
-          }
           return LevelingLineInput(
             backsight: backsight,
             foresight: foresight,
-            intermediateSight: intermediateSight,
+            intermediateSights: intermediateSights,
           );
         }).toList();
         final value = levelingSurvey(
@@ -1077,12 +1094,49 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
           prefixIcon: Icons.vertical_align_bottom,
         ),
         const SizedBox(height: 10),
-        GlassInputField(
-          controller: line.intermediateSight,
-          label: 'Line ${index + 1} - Intermediate Sight (IS) (m)',
-          hint: 'Optional, e.g. 1.210',
-          keyboardType: TextInputType.number,
-          prefixIcon: Icons.linear_scale,
+        for (var isIndex = 0; isIndex < line.intermediateSights.length; isIndex++) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: GlassInputField(
+                  controller: line.intermediateSights[isIndex],
+                  focusNode: line.intermediateSightFocusNodes[isIndex],
+                  label: 'Line ${index + 1} - IS ${isIndex + 1} (m)',
+                  hint: 'e.g. 1.210',
+                  keyboardType: TextInputType.number,
+                  prefixIcon: Icons.linear_scale,
+                  onSubmitted: (_) {
+                    final nextIndex = isIndex + 1;
+                    if (nextIndex < line.intermediateSightFocusNodes.length) {
+                      line.intermediateSightFocusNodes[nextIndex].requestFocus();
+                    } else {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    }
+                  },
+                ),
+              ),
+              IconButton(
+                onPressed: () => setState(() {
+                  line.intermediateSights[isIndex].dispose();
+                  line.intermediateSightFocusNodes[isIndex].dispose();
+                  line.intermediateSights.removeAt(isIndex);
+                  line.intermediateSightFocusNodes.removeAt(isIndex);
+                }),
+                icon: const Icon(Icons.delete_outline),
+                tooltip: 'Delete IS ${isIndex + 1}',
+                color: AppTheme.errorColor,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+        OutlinedButton.icon(
+          onPressed: () => setState(line.addIntermediateSight),
+          icon: const Icon(Icons.add, size: 18),
+          label: Text(
+            line.intermediateSights.isEmpty ? 'Add IS' : 'Add another IS',
+          ),
         ),
       ],
     ),

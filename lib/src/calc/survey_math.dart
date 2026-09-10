@@ -263,11 +263,13 @@ class LevelingLineInput {
   final double backsight;
   final double foresight;
   final double? intermediateSight;
+  final List<double> intermediateSights;
 
   const LevelingLineInput({
     required this.backsight,
     required this.foresight,
     this.intermediateSight,
+    this.intermediateSights = const [],
   });
 }
 
@@ -276,6 +278,7 @@ class LevelingLineResult {
   final double backsight;
   final double foresight;
   final double? intermediateSight;
+  final List<double> intermediateSights;
   final double heightOfInstrument;
   final double? intermediateElevation;
   final double foresightElevation;
@@ -285,6 +288,7 @@ class LevelingLineResult {
     required this.backsight,
     required this.foresight,
     required this.intermediateSight,
+    this.intermediateSights = const [],
     required this.heightOfInstrument,
     required this.intermediateElevation,
     required this.foresightElevation,
@@ -739,12 +743,15 @@ LevelingResult levelingSurvey({
     final intermediateElevation = line.intermediateSight == null
         ? null
         : heightOfInstrument - line.intermediateSight!;
+    final lineIntermediateSights = line.intermediateSights.isNotEmpty
+        ? line.intermediateSights
+        : (line.intermediateSight == null ? const <double>[] : [line.intermediateSight!]);
     final foresightElevation = heightOfInstrument - line.foresight;
 
-    if (line.intermediateSight != null) {
-      allIntermediateSights.add(line.intermediateSight!);
-      allIntermediateElevations.add(intermediateElevation!);
-    }
+    allIntermediateSights.addAll(lineIntermediateSights);
+    allIntermediateElevations.addAll(
+      lineIntermediateSights.map((sight) => heightOfInstrument - sight),
+    );
     lineResults.add(
       LevelingLineResult(
         lineNumber: index + 1,
@@ -753,6 +760,7 @@ LevelingResult levelingSurvey({
         intermediateSight: line.intermediateSight,
         heightOfInstrument: heightOfInstrument,
         intermediateElevation: intermediateElevation,
+        intermediateSights: List.unmodifiable(lineIntermediateSights),
         foresightElevation: foresightElevation,
       ),
     );

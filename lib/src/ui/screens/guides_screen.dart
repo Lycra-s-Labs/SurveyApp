@@ -165,6 +165,12 @@ class GuidesScreen extends StatelessWidget {
             'beginner',
           ),
           _GuideItem(
+            'Intermediate Sights (IS)',
+            'Find reduced levels for selected points between BS and FS.',
+            Icons.linear_scale,
+            'beginner',
+          ),
+          _GuideItem(
             'Error Sources & Adjustments',
             'Collimation error, curvature & refraction, loop closure.',
             Icons.warning,
@@ -720,6 +726,14 @@ class _GuideDetailSheet extends StatelessWidget {
           '• Fall = FS - BS (if positive)\n'
           '• Elevation = Previous Elevation + Rise - Fall\n\n'
           'Booking: BS, IS, FS, Rise, Fall, RL, Remarks columns.',
+
+      'Intermediate Sights (IS)':
+          'An Intermediate Sight (IS) is a staff reading taken on a selected point after the backsight and before the foresight from the same instrument setup. The point can be anywhere you need an elevation; it is not required to be a regular station or part of a traverse line.\n\n'
+          'Using the Height of Instrument method:\n'
+          '• HI = RL of known point + BS\n'
+          '• RL of IS point = HI - IS\n\n'
+          'You can take several IS readings without moving the instrument. Each IS gets its own RL from the same HI. The foresight is taken on the turning point before moving the instrument; the next setup begins with a backsight on that same turning point.\n\n'
+          'Example: BM RL 100.000 m + BS 1.520 m = HI 101.520 m. An IS of 1.210 m gives RL 100.310 m, while an IS of 1.850 m gives RL 99.670 m.',
 
       'Error Sources & Adjustments':
           'Common Leveling Errors:\n\n'

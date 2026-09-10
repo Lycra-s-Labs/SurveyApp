@@ -51,6 +51,8 @@ class GlassInputField extends StatelessWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+  final void Function(String)? onSubmitted;
+  final FocusNode? focusNode;
   final int? maxLines;
 
   const GlassInputField({
@@ -63,6 +65,8 @@ class GlassInputField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.validator,
     this.onChanged,
+    this.onSubmitted,
+    this.focusNode,
     this.maxLines = 1,
   });
 
@@ -71,11 +75,24 @@ class GlassInputField extends StatelessWidget {
     return Builder(
       builder: (fieldContext) => TextFormField(
         controller: controller,
+        focusNode: focusNode,
         keyboardType: keyboardType,
+        textInputAction: TextInputAction.next,
         maxLines: maxLines,
         scrollPadding: const EdgeInsets.only(top: 24, bottom: 140),
         validator: validator,
         onChanged: onChanged,
+        onEditingComplete: () {},
+        onFieldSubmitted: (submittedText) {
+          if (onSubmitted != null) {
+            onSubmitted!(submittedText);
+            return;
+          }
+          final movedToNextField = FocusScope.of(fieldContext).nextFocus();
+          if (!movedToNextField) {
+            FocusScope.of(fieldContext).unfocus();
+          }
+        },
         onTap: () {
           Future<void>.delayed(const Duration(milliseconds: 180), () {
             if (!fieldContext.mounted) return;

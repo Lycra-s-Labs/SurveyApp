@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../icons/lucide_icons.dart';
 import '../widgets/common_widgets.dart';
 import '../../theme/app_theme.dart';
@@ -59,7 +60,7 @@ class AboutScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Geo.C v1.0.0',
+                                'Geo.C v1.1.0',
                                 style: TextStyle(
                                   color: Theme.of(
                                     context,
@@ -440,9 +441,30 @@ class AboutScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _CreditItem(
+                'Lead Developer',
+                'Lycra-GX — original developer and maintainer of SurveyApp',
+                Icons.person,
+                url: 'https://github.com/Lycra-s-Labs/SurveyApp',
+                avatarUrl: 'https://github.com/Lycra-GX.png?size=128',
+              ),
+              _CreditItem(
+                'Contributor',
+                'MRSLAV16 — contributor to the SurveyApp project',
+                Icons.group,
+                url: 'https://github.com/Lycra-s-Labs/SurveyApp/graphs/contributors',
+                avatarUrl: 'https://github.com/MRSLAV16.png?size=128',
+              ),
+              _CreditItem(
+                'Source Project',
+                'Geo.C is developed from the open-source SurveyApp project on GitHub',
+                Icons.code,
+                url: 'https://github.com/Lycra-s-Labs/SurveyApp',
+              ),
+              _CreditItem(
                 'Surveying Formulas',
                 'Based on standard civil engineering surveying textbooks and field manuals',
                 Icons.book,
+                url: 'https://www.fao.org/fishery/docs/CDrom/FAO_Training/FAO_Training/General/x6707e/.%2154083%21x6707e08.htm',
               ),
               _CreditItem(
                 'Material Icons',
@@ -504,7 +526,7 @@ class AboutScreen extends StatelessWidget {
               ),
               _LegalItem(
                 'Version',
-                '1.0.0+1 — Built for civil engineering students',
+                '1.1.0+2 — Built for civil engineering students',
                 Icons.label,
               ),
             ],
@@ -571,8 +593,15 @@ class _CreditItem extends StatelessWidget {
   final String description;
   final IconData icon;
   final String? url;
+  final String? avatarUrl;
 
-  const _CreditItem(this.title, this.description, this.icon, {this.url});
+  const _CreditItem(
+    this.title,
+    this.description,
+    this.icon, {
+    this.url,
+    this.avatarUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -581,7 +610,27 @@ class _CreditItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppTheme.accentBlue, size: 18),
+          if (avatarUrl != null)
+            ClipOval(
+              child: Image.network(
+                avatarUrl!,
+                width: 30,
+                height: 30,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentBlue.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: AppTheme.accentBlue, size: 18),
+                ),
+              ),
+            )
+          else
+            Icon(icon, color: AppTheme.accentBlue, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -613,7 +662,19 @@ class _CreditItem extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 16,
               ),
-              onPressed: null,
+              onPressed: () async {
+                final uri = Uri.tryParse(url!);
+                if (uri == null) return;
+                final opened = await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
+                if (!opened && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No browser is available to open this link.')),
+                  );
+                }
+              },
               tooltip: 'Open link',
             ),
         ],
