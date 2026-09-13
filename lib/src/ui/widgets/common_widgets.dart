@@ -298,7 +298,9 @@ class ToolCard extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           decoration: AppTheme.glassCard(
             radius: 20,
-            borderColor: accentColor.withValues(alpha: 0.3),
+            borderColor: Theme.of(context).brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.55)
+                : accentColor.withValues(alpha: 0.3),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,7 +326,7 @@ class ToolCard extends StatelessWidget {
               Text(
                 description,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 13,
                   height: 1.4,
                 ),

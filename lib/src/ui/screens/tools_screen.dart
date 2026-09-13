@@ -698,16 +698,16 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
                           children: [
                             Text(
                               widget.tool.title,
-                              style: const TextStyle(
-                                color: AppTheme.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
                             Text(
                               widget.tool.subtitle,
-                              style: const TextStyle(
-                                color: AppTheme.textMuted,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 13,
                               ),
                             ),
@@ -718,6 +718,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
                   ),
                   const SizedBox(height: 24),
                   GlassCard(
+                    borderColor: Colors.black,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -826,8 +827,8 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppTheme.textSecondary,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -1036,6 +1037,7 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
   );
 
   Widget _levelingLineCard(int index, _LevelingLineControllers line) => GlassCard(
+    borderColor: Colors.black,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1049,16 +1051,16 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
                 children: [
                   Text(
                     'Line ${index + 1}',
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
                     'One instrument setup: BS, FS, and optional IS',
-                    style: const TextStyle(
-                      color: AppTheme.textMuted,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 11,
                     ),
                   ),
@@ -1475,10 +1477,12 @@ class _Traverse3DSheetState extends State<_Traverse3DSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.72,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -1498,11 +1502,11 @@ class _Traverse3DSheetState extends State<_Traverse3DSheet> {
               children: [
                 Icon(Icons.threed_rotation, color: widget.color),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Traverse 3D View',
                     style: TextStyle(
-                      color: AppTheme.textPrimary,
+                      color: colorScheme.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1538,6 +1542,8 @@ class _Traverse3DSheetState extends State<_Traverse3DSheet> {
                       painter: _Traverse3DPainter(
                         lines: widget.lines,
                         color: widget.color,
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
                         yaw: _yaw,
                         pitch: _pitch,
                       ),
@@ -1564,12 +1570,16 @@ class _Traverse3DSheetState extends State<_Traverse3DSheet> {
 class _Traverse3DPainter extends CustomPainter {
   final List<TraverseLineInput> lines;
   final Color color;
+  final Color backgroundColor;
+  final Color foregroundColor;
   final double yaw;
   final double pitch;
 
   const _Traverse3DPainter({
     required this.lines,
     required this.color,
+    required this.backgroundColor,
+    required this.foregroundColor,
     required this.yaw,
     required this.pitch,
   });
@@ -1608,10 +1618,10 @@ class _Traverse3DPainter extends CustomPainter {
         .map((point) => _project(point, size, scale, center))
         .toList();
 
-    canvas.drawRect(Offset.zero & size, Paint()..color = AppTheme.surfaceDark);
+    canvas.drawRect(Offset.zero & size, Paint()..color = backgroundColor);
 
     final gridPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.08)
+      ..color = foregroundColor.withValues(alpha: 0.12)
       ..strokeWidth = 1;
     for (var index = -4; index <= 4; index++) {
       final offset = index * maxExtent * 0.5;
@@ -1625,7 +1635,7 @@ class _Traverse3DPainter extends CustomPainter {
 
     final axisPaint = Paint()
       ..strokeWidth = 2
-      ..color = Colors.white.withValues(alpha: 0.35);
+      ..color = Colors.white.withValues(alpha: 0.6);
     canvas.drawLine(
       _project(Offset(-maxExtent, 0), size, scale, center),
       _project(Offset(maxExtent, 0), size, scale, center),
@@ -1654,9 +1664,12 @@ class _Traverse3DPainter extends CustomPainter {
       labelPainter.text = TextSpan(
         text: 'P${index + 1}',
         style: const TextStyle(
-          color: AppTheme.textPrimary,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
+          color: Colors.white,
+          fontSize: 13,
+          fontWeight: FontWeight.w900,
+          shadows: [
+            Shadow(color: Colors.black, blurRadius: 3),
+          ],
         ),
       );
       labelPainter.layout();
