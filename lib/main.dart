@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'src/theme/app_theme.dart';
 import 'src/ui/screens/main_shell.dart';
 
@@ -17,6 +18,30 @@ class _GeoCAppState extends State<GeoCApp> {
   ThemeMode _themeMode = ThemeMode.system;
   Color _seedColor = AppTheme.accentBlue;
   bool _pureBlack = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final preferences = await SharedPreferences.getInstance();
+    final savedMode = preferences.getString('themeMode');
+    if (!mounted || savedMode == null) return;
+    setState(() {
+      _themeMode = ThemeMode.values.firstWhere(
+        (mode) => mode.name == savedMode,
+        orElse: () => ThemeMode.system,
+      );
+    });
+  }
+
+  Future<void> _setThemeMode(ThemeMode mode) async {
+    setState(() => _themeMode = mode);
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString('themeMode', mode.name);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +65,7 @@ class _GeoCAppState extends State<GeoCApp> {
       themeMode: _themeMode,
       home: MainShell(
         themeMode: _themeMode,
-        onThemeModeChanged: (mode) => setState(() => _themeMode = mode),
+        onThemeModeChanged: _setThemeMode,
         seedColor: _seedColor,
         onSeedColorChanged: (color) => setState(() => _seedColor = color),
         pureBlack: _pureBlack,
