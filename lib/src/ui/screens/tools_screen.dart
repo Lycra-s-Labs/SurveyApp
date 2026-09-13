@@ -424,12 +424,33 @@ class _ToolInputSheetState extends State<_ToolInputSheet> {
       if (title == 'Traverse Calculation') {
         final lines = _traverseLines();
         final analysis = analyzeTraverse(lines);
-        result =
-            'Total distance: ${_v(analysis.totalDistance)} m\n'
-            'Σ Latitude: ${_v(analysis.sumLatitude)} m\n'
-            'Σ Departure: ${_v(analysis.sumDeparture)} m\n'
-            'Linear misclose: ${_v(analysis.linearMisclose)} m\n'
-            'Accuracy: ${analysis.accuracyRatio == null ? 'Perfect closure' : '1:${_v(analysis.accuracyRatio!)}'}';
+        var easting = 0.0;
+        var northing = 0.0;
+        final stationResults = <String>[];
+
+        for (var index = 0; index < analysis.lines.length; index++) {
+          final line = analysis.lines[index];
+          easting += line.departure;
+          northing += line.latitude;
+          stationResults.add(
+            'Station ${index + 1}: '
+            'Lat ${_v(line.latitude)} m, '
+            'Dep ${_v(line.departure)} m, '
+            'E ${_v(easting)} m, '
+            'N ${_v(northing)} m',
+          );
+        }
+
+        result = [
+          'Total distance: ${_v(analysis.totalDistance)} m',
+          'Σ Latitude: ${_v(analysis.sumLatitude)} m',
+          'Σ Departure: ${_v(analysis.sumDeparture)} m',
+          'Linear misclose: ${_v(analysis.linearMisclose)} m',
+          'Accuracy: ${analysis.accuracyRatio == null ? 'Perfect closure' : '1:${_v(analysis.accuracyRatio!)}'}',
+          '',
+          'Station results:',
+          ...stationResults,
+        ].join('\n');
       } else if (title.startsWith('Bearing + Distance')) {
         final value = coordinateFromStart(
           _number('startE'),
